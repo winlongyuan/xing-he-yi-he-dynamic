@@ -1,1 +1,1 @@
-{"$schema":"https://json.schemastore.org/vercel.json","functions":{"api/*.js":{"runtime":"nodejs24.x"}}}
+{"$schema":"https://json.schemastore.org/vercel.json"}
