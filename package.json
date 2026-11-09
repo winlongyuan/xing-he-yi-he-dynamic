@@ -1,0 +1,1 @@
+{"description":"《英汉语言对比数据工程》第三章《形合与意合》课堂互动实验室（动态版）：Vercel Serverless Functions + Supabase Postgres，供 80 位学生在线填写、互动与全班统计","engines":{"node":"24.x"},"name":"xing-he-yi-he-dynamic","private":true,"scripts":{"dev":"npx vercel dev","test":"node test/smoke.mjs"},"version":"1.0.0"}
