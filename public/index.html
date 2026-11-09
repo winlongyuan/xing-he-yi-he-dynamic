@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>形合与意合 · 课堂数据互动实验室（动态版）| 英汉语言对比数据工程 第三章</title>
+<style>
+  :root {
+    --ink: #1c2b3a;
+    --brand: #14557e;
+    --brand-dark: #0e3d5c;
+    --accent: #c96a1b;
+    --bg: #f4f7fa;
+    --card: #ffffff;
+    --line: #d7e0e8;
+    --muted: #5a6b7a;
+    --good: #1e7d4f;
+    --bad: #b3261e;
+    --bar-bg: #e8eef3;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header.topbar {
+    background: var(--brand-dark);
+    color: #fff;
+    padding: 28px 20px 22px;
+    text-align: center;
+  }
+  header.topbar h1 { margin: 0 0 8px; font-size: 1.7rem; line-height: 1.4; }
+  header.topbar p { margin: 4px 0; opacity: 0.92; font-size: 1rem; }
+  .topbar-row {
+    display: flex; justify-content: center; align-items: center;
+    gap: 14px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .lang-toggle {
+    background: #fff; color: var(--brand-dark); border: none;
+    font-size: 1rem; font-weight: 700; padding: 8px 18px;
+    border-radius: 999px; cursor: pointer;
+  }
+  .backend-status {
+    font-size: 0.95rem; background: rgba(255,255,255,0.14);
+    padding: 6px 14px; border-radius: 999px;
+  }
+  .backend-status .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .dot.ok { background: #58d68d; }
+  .dot.warn { background: #f5b041; }
+  nav.mainnav {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--brand); color: #fff;
+    display: flex; flex-wrap: wrap; justify-content: center;
+    padding: 0 8px;
+  }
+  nav.mainnav a {
+    color: #fff; text-decoration: none; font-size: 1rem;
+    padding: 12px 14px; display: block;
+  }
+  nav.mainnav a:hover { background: var(--brand-dark); }
+  main { max-width: 1080px; margin: 0 auto; padding: 20px 16px 60px; }
+  section.card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 24px 22px; margin-bottom: 26px;
+  }
+  section.card h2 {
+    margin: 0 0 6px; font-size: 1.45rem; color: var(--brand-dark);
+    border-bottom: 3px solid var(--accent); padding-bottom: 8px;
+  }
+  section.card h3 { margin: 22px 0 8px; font-size: 1.15rem; color: var(--brand); }
+  .subtitle { color: var(--muted); font-size: 0.98rem; margin: 0 0 14px; }
+  .note {
+    background: #fdf6ec; border-left: 5px solid var(--accent);
+    padding: 12px 16px; border-radius: 6px; margin: 14px 0; font-size: 0.98rem;
+  }
+  .note.blue { background: #eef5fb; border-left-color: var(--brand); }
+  .note.green { background: #edf7f1; border-left-color: var(--good); }
+  .btn {
+    background: var(--brand); color: #fff; border: none; cursor: pointer;
+    font-size: 1.05rem; font-weight: 700; padding: 12px 24px;
+    border-radius: 8px; margin: 6px 6px 6px 0;
+  }
+  .btn:hover { background: var(--brand-dark); }
+  .btn.secondary { background: #e8eef3; color: var(--brand-dark); }
+  .btn.warn { background: var(--bad); }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn.small { font-size: 0.95rem; padding: 8px 16px; }
+  input[type="text"], textarea, select {
+    font-size: 1.05rem; padding: 10px 12px; border: 1.5px solid var(--line);
+    border-radius: 8px; width: 100%; font-family: inherit;
+  }
+  textarea { min-height: 120px; resize: vertical; }
+  label { font-weight: 700; display: block; margin: 12px 0 6px; }
+  .radio-row { display: flex; gap: 20px; align-items: center; margin: 6px 0; }
+  .radio-row label { display: inline; font-weight: 400; margin: 0; }
+  .text-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 12px 0; }
+  .text-cols.two { grid-template-columns: repeat(2, 1fr); }
+  .text-card {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 14px;
+    background: #fbfcfe;
+  }
+  .text-card .tag {
+    display: inline-block; font-size: 0.85rem; font-weight: 700;
+    background: var(--brand); color: #fff; border-radius: 999px; padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .text-card .tag.zh { background: var(--accent); }
+  .text-card p { margin: 6px 0; }
+  .text-card .en-text { font-size: 1.02rem; }
+  .metric-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0;
+  }
+  .metric {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 10px;
+    text-align: center; background: #fff;
+  }
+  .metric .num { font-size: 1.6rem; font-weight: 800; color: var(--brand-dark); line-height: 1.2; }
+  .metric .lbl { font-size: 0.92rem; color: var(--muted); margin-top: 2px; }
+  .metric.hl { border-color: var(--accent); background: #fdf6ec; }
+  .metric.hl .num { color: var(--accent); }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 64px; gap: 10px; align-items: center; margin: 8px 0; font-size: 0.98rem; }
+  .bar { height: 22px; background: var(--bar-bg); border-radius: 5px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--brand); border-radius: 5px; min-width: 2px; }
+  .bar > i.orange { background: var(--accent); }
+  .bar > i.green { background: var(--good); }
+  .bar-val { text-align: right; font-weight: 700; }
+  details { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  summary { cursor: pointer; font-weight: 700; color: var(--brand); font-size: 1.05rem; }
+  table.wall { width: 100%; border-collapse: collapse; font-size: 0.98rem; margin-top: 10px; }
+  table.wall th, table.wall td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+  table.wall th { background: #eef5fb; }
+  .vote-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .quiz-opt {
+    display: block; width: 100%; text-align: left; margin: 8px 0;
+    background: #fbfcfe; border: 1.5px solid var(--line); color: var(--ink);
+    font-size: 1.02rem; padding: 12px 16px; border-radius: 8px; cursor: pointer;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--brand); }
+  .quiz-opt:disabled { cursor: default; opacity: 0.75; }
+  .quiz-opt.correct { border-color: var(--good); background: #edf7f1; }
+  .quiz-opt.wrong { border-color: var(--bad); background: #fdecea; }
+  .explain { font-size: 0.98rem; margin: 6px 0 14px; display: none; }
+  .explain.show { display: block; }
+  .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 12px 0; }
+  footer { text-align: center; color: var(--muted); font-size: 0.92rem; padding: 10px 16px 40px; }
+  .msg { margin: 10px 0; font-weight: 700; }
+  .msg.ok { color: var(--good); }
+  .msg.err { color: var(--bad); }
+  @media (max-width: 760px) {
+    body { font-size: 17px; }
+    .text-cols, .text-cols.two { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+    .bar-row { grid-template-columns: 110px 1fr 56px; }
+    section.card { padding: 18px 14px; }
+    nav.mainnav a { padding: 10px 8px; font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>形合与意合 · 课堂数据互动实验室</h1>
+  <p>Hypotactic vs. Paratactic — 《英汉语言对比数据工程》第三章 · 数据工程试点（动态版）</p>
+  <p>教材：连淑能《英汉对比研究》第三章 · 适用：翻译专业 / 智能翻译工程</p>
+  <div class="topbar-row">
+    <button class="lang-toggle" id="langToggle" type="button">EN</button>
+    <span class="backend-status" id="backendStatus"><span class="dot warn"></span>正在连接云端数据库…</span>
+  </div>
+</header>
+
+<nav class="mainnav">
+  <a href="#theory" data-i18n="nav_theory">理论导读</a>
+  <a href="#lab" data-i18n="nav_lab">数据实验室</a>
+  <a href="#mine" data-i18n="nav_mine">学生动手</a>
+  <a href="#verify" data-i18n="nav_verify">验证环节</a>
+  <a href="#discuss" data-i18n="nav_discuss">课堂讨论</a>
+  <a href="#quiz" data-i18n="nav_quiz">课堂小测</a>
+  <a href="#guide" data-i18n="nav_guide">教师指南</a>
+  <a href="#stats" data-i18n="nav_stats">教师统计</a>
+</nav>
+
+<main>
+
+<!-- ============ 1. 理论导读 ============ -->
+<section class="card" id="theory">
+  <h2 data-i18n="sec_theory">1 · 理论导读</h2>
+  <p class="subtitle">先读懂概念，再用数据验证。Theory first, then verify with data.</p>
+
+  <h3>形合 Hypotactic vs. 意合 Paratactic</h3>
+  <p><strong>形合（Hypotactic）</strong>：英语重形合，句子靠<strong>显性连接手段</strong>组织——连接词、从句、形态标记把逻辑关系明白地标出来，句法结构严密，像一棵"树"，主干分明、枝叶有序。</p>
+  <p><strong>意合（Paratactic）</strong>：汉语重意合，句子靠<strong>语义逻辑和语境</strong>组织——连接手段常常是隐性的，句子像"流水"，顺着意思往下淌，逻辑藏在语义里。</p>
+
+  <div class="text-cols two">
+    <div class="text-card">
+      <span class="tag">形合 · 英文</span>
+      <p class="en-text">"I shall despair if you don't come."</p>
+      <p class="subtitle">条件关系由 if 显性标出。——连淑能《英汉对比研究》第 73 页</p>
+    </div>
+    <div class="text-card">
+      <span class="tag zh">意合 · 汉语</span>
+      <p>"The rain fell; the river flooded; the house washed away."</p>
+      <p class="subtitle">三个分句并列，无连接词，逻辑靠语义。——连淑能《英汉对比研究》第 73 页</p>
+    </div>
+  </div>
+
+  <h3>本课三条可验证的预测（Predictions）</h3>
+  <ol>
+    <li>英语文本的<strong>连接词密度</strong>高于汉语意合文本；</li>
+    <li>英语的<strong>平均句长</strong>长于汉语；</li>
+    <li>汉语的<strong>逗号 / 分句</strong>更多，句子短而密。</li>
+  </ol>
+
+  <h3>一分钟 mini 对照：去掉一个词，密度归零</h3>
+  <div class="text-cols two">
+    <div class="text-card">
+      <span class="tag">英文 · 含 because</span>
+      <p class="en-text">"Because it is late, I must leave."</p>
+      <p class="subtitle">7 个词，连接词 because × 1。——第 73 页</p>
+    </div>
+    <div class="text-card">
+      <span class="tag zh">英文 · 去掉 because</span>
+      <p class="en-text">"It is late, I must leave."</p>
+      <p class="subtitle">6 个词，连接词 0 个。——第 73 页</p>
+    </div>
+  </div>
+  <div class="note" id="miniResult">正在计算密度…</div>
+  <p>同一个意思，有 because 是显性逻辑（形合），没 because 就靠语义（意合）。这就是本课要验证的核心区别。</p>
+</section>
+
+<!-- ============ 2. 数据实验室 ============ -->
+<section class="card" id="lab">
+  <h2 data-i18n="sec_lab">2 · 数据实验室</h2>
+  <p class="subtitle">点"分析这组"，六项指标与柱状对比图立刻出现。Click "分析这组" to run the numbers.</p>
+
+  <div class="note blue">
+    <strong>统计口径（全课统一）：</strong>英文按词计，中文按字计；
+    连接词密度 = 连接词数 ÷ 总词数（字数）× 100；
+    <strong>形合指数 = 连接词密度</strong>；平均句长 = 总词数（字数）÷ 句子数；
+    句子按 。！？.!? 切分；逗号数统计 ，、, 三种。
+  </div>
+
+  <div id="groups"></div>
+
+  <h3>三组汇总（前三组自编句的平均值，实时计算）</h3>
+  <div id="summaryMeans"><p>正在计算…</p></div>
+
+  <div class="note">
+    <strong>教学提示 · 第一组有个"反例"：</strong>汉语意合版"他很累，早早就睡了。"里的"就"会被计为连接词，
+    导致该组汉语密度（12.5）反超英文版（10）。这不是结论错了，而是<strong>小样本有噪声</strong>——
+    单个数字会骗人，结论要看多组数据的汇总：三组汇总下来，英文形合指数约 14.76，汉语意合版约 5.5，
+    形合化版约 10.8。课堂上正好借这个反例聊聊"数据思维"：别迷信单个数字。
+  </div>
+
+  <details>
+    <summary>连接词词表（点击展开 / Connective lists）</summary>
+    <p><strong>英文（28 个）：</strong>and, but, or, so, because, although, though, if, when, while, since, as, that, which, who, however, therefore, thus, moreover, furthermore, nevertheless, meanwhile, then, after, before, until, unless, whereas, despite</p>
+    <p><strong>中文（24 个）：</strong>因为、所以、但是、但、然而、可是、不过、虽然、尽管、即使、如果、假如、而且、并且、或者、还是、于是、然后、接着、同时、此外、就、才、却、而</p>
+    <p class="subtitle">中文按最长匹配扫描："然而"计 1 次，不会拆成"然"+"而"；"但是"计 1 次，不会拆成"但"。</p>
+  </details>
+</section>
+
+<!-- ============ 3. 学生动手 ============ -->
+<section class="card" id="mine">
+  <h2 data-i18n="sec_mine">3 · 学生动手 · 我的数据</h2>
+  <p class="subtitle">粘贴任意一段英文或中文，先选语言，再点分析；算完可以提交到班级汇总。Your text, your data.</p>
+
+  <label>第一步：选择语言 / Language</label>
+  <div class="radio-row">
+    <label><input type="radio" name="myLang" value="en" checked> 英文 English</label>
+    <label><input type="radio" name="myLang" value="zh"> 中文 Chinese</label>
+  </div>
+
+  <label for="myText">第二步：粘贴文本 / Paste your text</label>
+  <textarea id="myText" placeholder="例如：粘贴一段英语课文，或一段汉语新闻，再点下面的"分析我的文本"。"></textarea>
+  <div>
+    <button class="btn" id="btnAnalyzeMine" type="button" data-i18n="btn_analyze">分析我的文本</button>
+  </div>
+  <div id="myResult"></div>
+
+  <h3>第三步：提交到班级汇总</h3>
+  <label for="myNickname">昵称 / 学号后两位（用于班级数据墙，不收集真实姓名）</label>
+  <input type="text" id="myNickname" maxlength="20" placeholder="例如：小林 / 07">
+  <div>
+    <button class="btn" id="btnSubmitMine" type="button" data-i18n="btn_submit" disabled>提交到班级汇总</button>
+  </div>
+  <p class="msg" id="submitMsg"></p>
+
+  <h3>班级数据墙（全班提交，实时同步）</h3>
+  <p>
+    <button class="btn small secondary" id="btnRefreshWall" type="button" data-i18n="btn_refresh">刷新数据墙</button>
+  </p>
+  <div id="wallSummary"><p>正在加载班级数据…</p></div>
+  <div style="overflow-x:auto;">
+    <table class="wall">
+      <thead>
+        <tr><th>昵称</th><th>语言</th><th>词数/字数</th><th>连接词</th><th>密度</th><th>平均句长</th><th>提交时间</th></tr>
+      </thead>
+      <tbody id="wallBody"><tr><td colspan="7">正在加载…</td></tr></tbody>
+    </table>
+  </div>
+
+  <h3>教师清空（需 PIN）</h3>
+  <p class="subtitle">下课或新一轮实验前清空全班数据。清空后提交、投票、小测记录全部删除，不可恢复。</p>
+  <label for="clearPin">教师 PIN</label>
+  <input type="text" id="clearPin" maxlength="20" placeholder="输入教师 PIN" autocomplete="off">
+  <div>
+    <button class="btn warn" id="btnClear" type="button" data-i18n="btn_clear">清空班级数据</button>
+  </div>
+  <p class="msg" id="clearMsg"></p>
+</section>
+
+<!-- ============ 4. 验证环节 ============ -->
+<section class="card" id="verify">
+  <h2 data-i18n="sec_verify">4 · 验证环节 · 假设检验</h2>
+  <p class="subtitle">先看"数据怎么说"，再投票：证实 / 证伪 / 存疑。Vote after reading the data.</p>
+  <div id="hypotheses"></div>
+  <div class="note green">
+    <strong>引导总结：</strong>三组汇总数据显示，英文连接词密度（约 14.76）明显高于汉语意合版（约 5.5），
+    但汉语不是"没有连接"，而是连接手段更隐性——<strong>形合与意合是程度差异，不是"有"与"无"的区别</strong>。
+    汉语加上连接词（形合化）后，密度会向英语靠近，这正是翻译时常做"显化"处理的原因。
+  </div>
+</section>
+
+<!-- ============ 5. 课堂讨论 ============ -->
+<section class="card" id="discuss">
+  <h2 data-i18n="sec_discuss">5 · 课堂讨论</h2>
+  <p class="subtitle">结合刚才的数据，小组讨论 3–5 分钟，派代表发言。Discuss in groups, then share.</p>
+  <ol>
+    <li>
+      <strong>翻译时，汉语意合句译成英语为什么常常要"补"连接词？</strong>
+      <details><summary>讨论提示</summary>
+      <p>想想"显化"（explicitation）：英语读者习惯显性逻辑，译者把汉语里隐含的因果、转折关系用 because、although、so 等标出来，译文才符合英语读者的期待。这也是机器翻译最容易"翻得生硬"的地方之一。</p></details>
+    </li>
+    <li>
+      <strong>机器翻译处理意合句时最容易出什么问题？</strong>
+      <details><summary>讨论提示</summary>
+      <p>意合句的逻辑藏在语义和语境里，机器看不到显性标记，容易"猜错关系"：该转折的翻成并列，该因果的翻成顺承；或者反过来，过度添加连接词，把简洁的汉语翻成啰嗦的英语。</p></details>
+    </li>
+    <li>
+      <strong>数据显示汉语连接词密度低，能不能说"汉语没有逻辑"？为什么？</strong>
+      <details><summary>讨论提示</summary>
+      <p>不能。密度低只说明连接手段不同，不等于没有逻辑：汉语的逻辑由语义顺序、语境和常识承载，"雨下得很大，他们照样干活"里转折关系清清楚楚，只是没写"但是"。评价一种语言，不能拿另一种语言的尺子当唯一标准。</p></details>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ 6. 课堂小测 ============ -->
+<section class="card" id="quiz">
+  <h2 data-i18n="sec_quiz">6 · 评价 · 课堂小测</h2>
+  <p class="subtitle">三道题，点选项即时判对错；答完显示得分，可以提交到班级统计。3 questions, instant feedback.</p>
+  <div id="quizBox"></div>
+  <div id="quizResult"></div>
+</section>
+
+<!-- ============ 7. 教师指南 ============ -->
+<section class="card" id="guide">
+  <h2 data-i18n="sec_guide">7 · 教师指南</h2>
+  <p class="subtitle">点击展开查看 45 分钟课堂流程、教学提示与课后作业。For the teacher.</p>
+  <details>
+    <summary>45 分钟课堂流程（点击展开）</summary>
+    <table class="wall">
+      <thead><tr><th>环节</th><th>时间</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>导入</td><td>5 分钟</td><td>用 73 页 mini 对照开场：同一句有 because / 没 because，密度 14.3 → 0，问学生"逻辑去哪儿了"。</td></tr>
+        <tr><td>理论导读</td><td>10 分钟</td><td>讲清形合 / 意合定义与两句定义例句，提出三条可验证的预测。</td></tr>
+        <tr><td>数据实验</td><td>15 分钟</td><td>学生分组跑第一至三组数据，再亲手分析第四组教材原句；每人粘贴一段自选文本，提交到班级汇总。</td></tr>
+        <tr><td>验证讨论</td><td>10 分钟</td><td>对照"数据怎么说"投票 H1–H3，讨论三道讨论题。</td></tr>
+        <tr><td>小测总结</td><td>5 分钟</td><td>三道小测即时反馈，总结"程度之别"，布置课后作业。</td></tr>
+      </tbody>
+    </table>
+    <h3>教学提示</h3>
+    <ul>
+      <li><strong>第一组"就"的反例：</strong>汉语意合版"他很累，早早就睡了。"里的"就"会被计为连接词，密度 12.5 反超英文版 10。这是小样本噪声的教学点：单个数字会骗人，结论看汇总。</li>
+      <li><strong>第四组只看连接词密度：</strong>教材长句平均句长（英文 27）远高于前三组短句，不要拿平均句长和短句组直接比；这一组比较的是密度（英文 7.41 vs 汉译 0）。</li>
+      <li><strong>Supabase 休眠：</strong>免费项目闲置 7 天会暂停，上课前一天打开一次本页（或点一次刷新）即可唤醒；首次唤醒加载会慢几秒，属正常现象。</li>
+      <li><strong>网络不佳时：</strong>本地分析（数据实验室、学生动手分析、小测判分）不依赖后端，断网也能做；只有提交、投票、数据墙、统计需要联网。</li>
+    </ul>
+    <h3>课后作业</h3>
+    <p>用书 74 页例 2 跑一遍数据，并与例 1 对比密度：</p>
+    <p><strong>英文：</strong>"When I try to understand what it is that prevents so many Americans from being as happy as one might expect, it seems to me that there are two causes, of which one goes much deeper than the other."</p>
+    <p><strong>汉语：</strong>"为什么如此众多的美国人不能如想象中那样幸福？我认为原因有二，而两者之间又有深浅之分。"</p>
+    <p>思考：例 2 英文里的 when、what、that、which、of which 有几个算连接词？汉译里"为什么""而"算不算？下节课汇报。</p>
+  </details>
+</section>
+
+<!-- ============ 8. 教师统计 ============ -->
+<section class="card" id="stats">
+  <h2 data-i18n="sec_stats">8 · 教师统计视图</h2>
+  <p class="subtitle">全班数据汇总：平均密度、提交分布、投票分布、小测得分分布。Live class statistics.</p>
+  <p><button class="btn" id="btnRefreshStats" type="button" data-i18n="btn_stats">刷新统计</button></p>
+  <div id="statsBox"><p>点"刷新统计"查看全班数据。</p></div>
+</section>
+
+</main>
+
+<footer>
+  <p>《英汉语言对比数据工程》第三章《形合与意合》· 课堂数据互动实验室（动态版）</p>
+  <p>例句来源：连淑能《英汉对比研究》第三章（第 73–74 页例证为教材原句，其余为教学示例）；数据口径见"数据实验室"说明；统计在浏览器内完成，提交结果存入班级数据库。</p>
+  <p>隐私说明：仅收集昵称 / 学号后两位与分析结果，不收集真实姓名、学号全号等个人信息；教师清空后数据不可恢复。</p>
+</footer>
+
+<script src="./analyze.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.LabAnalyze;
+
+  /* ================= 数据 ================= */
+  var GROUPS = [
+    { id: 1, title: '第一组 · 简单句', texts: [
+      { lang: 'en', label: '英文', text: 'He was very tired, so he went to bed early.' },
+      { lang: 'zh', label: '汉语意合版', text: '他很累，早早就睡了。' },
+      { lang: 'zh', label: '汉语形合化版', text: '因为他很累，所以他很早就上床睡觉了。' }
+    ] },
+    { id: 2, title: '第二组 · 复合句', texts: [
+      { lang: 'en', label: '英文', text: 'Although it was raining heavily, they continued to work because the deadline was approaching.' },
+      { lang: 'zh', label: '汉语意合版', text: '雨下得很大，他们照样干活，期限快到了。' },
+      { lang: 'zh', label: '汉语形合化版', text: '尽管雨下得很大，他们仍然继续工作，因为期限快到了。' }
+    ] },
+    { id: 3, title: '第三组 · 语篇段落', texts: [
+      { lang: 'en', label: '英文', text: 'When I got home, I found that my mother had already cooked dinner. She smiled and said that I should wash my hands first, and then we could eat together.' },
+      { lang: 'zh', label: '汉语意合版', text: '我回到家，妈妈已经做好了饭。她笑着说，先洗手，然后一起吃饭。' },
+      { lang: 'zh', label: '汉语形合化版', text: '当我回到家的时候，我发现妈妈已经做好了晚饭。她笑着对我说，我应该先去洗手，然后我们就可以一起吃饭了。' }
+    ] },
+    { id: 4, title: '第四组 · 教材原句（连淑能《英汉对比研究》第 74 页例 1）', texts: [
+      { lang: 'en', label: '英文', text: 'All was cleared up some time later when news came from a distant place that an earthquake was felt the very day the little copper ball fell.' },
+      { lang: 'zh', label: '汉译', text: '过了一些时候，从远方传来了消息：在小铜球坠落的当天，确实发生了地震。这一切终于得到了澄清。' }
+    ] }
+  ];
+
+  var HYPS = [
+    { id: 'H1', title: 'H1 · 英语文本的连接词密度显著高于汉语意合文本',
+      dataSay: '三组汇总：英文平均密度约 14.76，汉语意合版约 5.5，英文约为汉语的 2.7 倍。' },
+    { id: 'H2', title: 'H2 · 英语平均句长长于汉语',
+      dataSay: '第一组：英文 10.0 vs 汉语意合 8.0；第二组：英文 14.0 vs 汉语意合 16.0（本组不成立）；第三组：英文 15.0 vs 汉语意合 12.5。两组支持、一组不支持——结论要分情况看。' },
+    { id: 'H3', title: 'H3 · 汉语加连接词（形合化）后密度接近英语',
+      dataSay: '三组汇总：汉语形合化版平均密度约 10.8，介于意合版 5.5 与英文 14.76 之间，确实向英语靠近，但尚未完全达到英语水平。' }
+  ];
+
+  var QUIZ = [
+    { q: 'Q1 · 以下哪一句最能体现英语的"形合"特点？',
+      opts: ['A. 他累了，睡了。', 'B. Although he was tired, he continued working because the work had to be finished.', 'C. 雨很大，他们照样干活。', 'D. 妈妈做好了饭。'],
+      answer: 1,
+      explain: 'B 句用 although、because 显性标出让步与因果关系，是典型的形合句；A、C、D 都是汉语意合句。' },
+    { q: 'Q2 · 汉语"意合"主要依靠什么衔接？',
+      opts: ['A. 连接词', 'B. 从句标记', 'C. 语义逻辑和语境', 'D. 词形变化'],
+      answer: 2,
+      explain: '汉语意合靠语义逻辑和语境衔接，连接词和从句标记都不是主要手段；汉语也没有英语那样的词形变化。' },
+    { q: 'Q3 · 数据显示英语连接词密度约为汉语意合文本的 3 倍，这说明了什么？',
+      opts: ['A. 英语比汉语更高级', 'B. 英语更依赖显性连接手段', 'C. 汉语句子缺乏逻辑', 'D. 翻译时必须逐词对应'],
+      answer: 1,
+      explain: '密度差异反映的是连接手段的偏好不同，不是语言优劣，更不是汉语没有逻辑；翻译讲究功能对等，不是逐词对应。' }
+  ];
+
+  /* ================= i18n（切换导航、标题与按钮文字） ================= */
+  var I18N = {
+    zh: { nav_theory: '理论导读', nav_lab: '数据实验室', nav_mine: '学生动手', nav_verify: '验证环节',
+      nav_discuss: '课堂讨论', nav_quiz: '课堂小测', nav_guide: '教师指南', nav_stats: '教师统计',
+      sec_theory: '1 · 理论导读', sec_lab: '2 · 数据实验室', sec_mine: '3 · 学生动手 · 我的数据',
+      sec_verify: '4 · 验证环节 · 假设检验', sec_discuss: '5 · 课堂讨论', sec_quiz: '6 · 评价 · 课堂小测',
+      sec_guide: '7 · 教师指南', sec_stats: '8 · 教师统计视图',
+      btn_analyze: '分析我的文本', btn_submit: '提交到班级汇总', btn_refresh: '刷新数据墙',
+      btn_clear: '清空班级数据', btn_stats: '刷新统计', toggle: 'EN' },
+    en: { nav_theory: 'Theory', nav_lab: 'Data Lab', nav_mine: 'My Data', nav_verify: 'Verify',
+      nav_discuss: 'Discuss', nav_quiz: 'Quiz', nav_guide: 'Teacher Guide', nav_stats: 'Statistics',
+      sec_theory: '1 · Theory', sec_lab: '2 · Data Lab', sec_mine: '3 · Hands-on · My Data',
+      sec_verify: '4 · Verify · Hypotheses', sec_discuss: '5 · Discussion', sec_quiz: '6 · Quiz',
+      sec_guide: '7 · Teacher Guide', sec_stats: '8 · Class Statistics',
+      btn_analyze: 'Analyze my text', btn_submit: 'Submit to class wall', btn_refresh: 'Refresh wall',
+      btn_clear: 'Clear class data', btn_stats: 'Refresh statistics', toggle: '中文' }
+  };
+  var uiLang = 'zh';
+  function applyI18n() {
+    var dict = I18N[uiLang];
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n');
+      if (dict[k]) el.textContent = dict[k];
+    });
+    document.getElementById('langToggle').textContent = dict.toggle;
+  }
+  document.getElementById('langToggle').addEventListener('click', function () {
+    uiLang = uiLang === 'zh' ? 'en' : 'zh';
+    applyI18n();
+  });
+
+  /* ================= 工具 ================= */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmt(n) { return (Math.round(n * 100) / 100).toString(); }
+
+  async function api(path, opts) {
+    opts = opts || {};
+    var res = await fetch(path, {
+      method: opts.method || 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: opts.body === undefined ? undefined : JSON.stringify(opts.body)
+    });
+    var data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.error) || ('HTTP ' + res.status));
+    }
+    return data;
+  }
+
+  function metricCards(r) {
+    var items = [
+      { n: r.units, l: '词数 / 字数' },
+      { n: r.sentences, l: '句子数' },
+      { n: r.connectives, l: '连接词数' },
+      { n: fmt(r.density), l: '连接词密度（每100词/字）', hl: true },
+      { n: fmt(r.avgLen), l: '平均句长' },
+      { n: r.commas, l: '逗号数' }
+    ];
+    var html = '<div class="metric-grid">' + items.map(function (m) {
+      return '<div class="metric' + (m.hl ? ' hl' : '') + '"><div class="num">' + m.n + '</div><div class="lbl">' + m.l + '</div></div>';
+    }).join('') + '</div>';
+    if (r.hits && r.hits.length) {
+      html += '<p class="subtitle">命中的连接词：' + r.hits.map(function (h) { return esc(h.word) + ' × ' + h.count; }).join('、') + '</p>';
+    } else {
+      html += '<p class="subtitle">命中的连接词：无</p>';
+    }
+    return html;
+  }
+
+  function densityBars(rows) {
+    // rows: [{label, density, cls}]
+    var max = 0;
+    rows.forEach(function (r) { if (r.density > max) max = r.density; });
+    if (max === 0) max = 1;
+    return rows.map(function (r) {
+      var w = Math.max(1, Math.round((r.density / max) * 100));
+      return '<div class="bar-row"><span>' + esc(r.label) + '</span>' +
+        '<div class="bar"><i class="' + (r.cls || '') + '" style="width:' + w + '%"></i></div>' +
+        '<span class="bar-val">' + fmt(r.density) + '</span></div>';
+    }).join('');
+  }
+
+  /* ================= 1. mini 对照（实时计算） ================= */
+  (function miniContrast() {
+    var a = A.analyzeText('Because it is late, I must leave.', 'en');
+    var b = A.analyzeText('It is late, I must leave.', 'en');
+    $('miniResult').innerHTML = '实测：含 because 的句子密度 <strong>' + Number(a.density.toFixed(1)) +
+      '</strong>（' + a.connectives + ' 个连接词 / ' + a.units + ' 词）；去掉 because 后密度 <strong>' +
+      Number(b.density.toFixed(1)) + '</strong>（' + b.connectives + ' 个连接词 / ' + b.units + ' 词）。去掉一个词，密度归零。';
+  })();
+
+  /* ================= 2. 数据实验室 ================= */
+  function renderGroups() {
+    var html = '';
+    GROUPS.forEach(function (g) {
+      html += '<h3>' + esc(g.title) + '</h3>';
+      html += '<div class="text-cols' + (g.texts.length === 2 ? ' two' : '') + '">';
+      g.texts.forEach(function (t, ti) {
+        html += '<div class="text-card"><span class="tag' + (t.lang === 'zh' ? ' zh' : '') + '">' + esc(t.label) + '</span>' +
+          '<p class="' + (t.lang === 'en' ? 'en-text' : '') + '">' + esc(t.text) + '</p></div>';
+      });
+      html += '</div>';
+      html += '<button class="btn" type="button" data-group="' + g.id + '">分析这组</button>';
+      html += '<div id="groupResult' + g.id + '"></div>';
+    });
+    $('groups').innerHTML = html;
+    document.querySelectorAll('#groups [data-group]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var gid = Number(btn.getAttribute('data-group'));
+        var g = null;
+        GROUPS.forEach(function (x) { if (x.id === gid) g = x; });
+        if (!g) return;
+        var results = g.texts.map(function (t) { return { label: t.label, lang: t.lang, r: A.analyzeText(t.text, t.lang) }; });
+        var out = '';
+        results.forEach(function (x) {
+          out += '<h3>' + esc(x.label) + '</h3>' + metricCards(x.r);
+        });
+        out += '<h3>连接词密度对比（形合指数）</h3>' + densityBars(results.map(function (x) {
+          return { label: x.label, density: x.r.density, cls: x.lang === 'en' ? '' : 'orange' };
+        }));
+        $('groupResult' + gid).innerHTML = out;
+      });
+    });
+  }
+
+  function renderSummaryMeans() {
+    // 前三组汇总：英文 / 汉语意合 / 汉语形合化 各取三组密度的平均值
+    var sums = { en: [], zhYi: [], zhXing: [] };
+    GROUPS.slice(0, 3).forEach(function (g) {
+      g.texts.forEach(function (t, i) {
+        var d = A.analyzeText(t.text, t.lang).density;
+        if (i === 0) sums.en.push(d);
+        else if (i === 1) sums.zhYi.push(d);
+        else sums.zhXing.push(d);
+      });
+    });
+    function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
+    var rows = [
+      { label: '英文', density: mean(sums.en), cls: '' },
+      { label: '汉语意合版', density: mean(sums.zhYi), cls: 'orange' },
+      { label: '汉语形合化版', density: mean(sums.zhXing), cls: 'green' }
+    ];
+    $('summaryMeans').innerHTML = densityBars(rows) +
+      '<p class="subtitle">英文约 ' + fmt(rows[0].density) + '，汉语意合版约 ' + fmt(rows[1].density) +
+      '，形合化版约 ' + fmt(rows[2].density) + '。英文约为汉语意合版的 ' +
+      (rows[1].density ? fmt(rows[0].density / rows[1].density) : '—') + ' 倍。</p>';
+  }
+
+  renderGroups();
+  renderSummaryMeans();
+
+  /* ================= 后端连接状态 ================= */
+  async function checkBackend() {
+    try {
+      await api('/api/submissions');
+      $('backendStatus').innerHTML = '<span class="dot ok"></span>已连接云端数据库';
+      return true;
+    } catch (e) {
+      $('backendStatus').innerHTML = '<span class="dot warn"></span>未连接后端：仅本地分析可用（部署后自动连接）';
+      return false;
+    }
+  }
+
+  function sampleMeans() {
+    var sums = { en: [], zhYi: [], zhXing: [] };
+    GROUPS.slice(0, 3).forEach(function (g) {
+      g.texts.forEach(function (t, i) {
+        var d = A.analyzeText(t.text, t.lang).density;
+        if (i === 0) sums.en.push(d);
+        else if (i === 1) sums.zhYi.push(d);
+        else sums.zhXing.push(d);
+      });
+    });
+    function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
+    return { en: mean(sums.en), zhYi: mean(sums.zhYi), zhXing: mean(sums.zhXing) };
+  }
+
+  /* ================= 3. 学生动手 ================= */
+  var myLastResult = null;
+  var myLastLang = 'en';
+  $('btnAnalyzeMine').addEventListener('click', function () {
+    var text = $('myText').value;
+    var lang = document.querySelector('input[name="myLang"]:checked').value;
+    if (!text.trim()) {
+      $('myResult').innerHTML = '<p class="msg err">请先粘贴一段文本。</p>';
+      return;
+    }
+    var r = A.analyzeText(text, lang);
+    myLastResult = r;
+    myLastLang = lang;
+    var means = sampleMeans();
+    var refMean = lang === 'en' ? means.en : means.zhYi;
+    var refLabel = lang === 'en' ? '英文样本均值' : '汉语意合样本均值';
+    $('myResult').innerHTML = metricCards(r) +
+      '<h3>与样本均值对比</h3>' + densityBars([
+        { label: '你的文本', density: r.density, cls: 'green' },
+        { label: refLabel, density: refMean, cls: '' }
+      ]) +
+      '<p class="subtitle">你的文本密度 ' + fmt(r.density) + '，' + refLabel + ' ' + fmt(refMean) + '。</p>';
+    $('btnSubmitMine').disabled = false;
+    $('submitMsg').textContent = '';
+    $('submitMsg').className = 'msg';
+  });
+
+  $('btnSubmitMine').addEventListener('click', async function () {
+    if (!myLastResult) return;
+    var btn = $('btnSubmitMine');
+    btn.disabled = true;
+    try {
+      await api('/api/submissions', {
+        method: 'POST',
+        body: {
+          nickname: $('myNickname').value.trim() || '匿名',
+          text_lang: myLastLang,
+          word_count: myLastResult.units,
+          connective_count: myLastResult.connectives,
+          density: myLastResult.density,
+          avg_sentence_length: myLastResult.avgLen
+        }
+      });
+      $('submitMsg').textContent = '提交成功！已进入班级数据墙。';
+      $('submitMsg').className = 'msg ok';
+      loadWall();
+    } catch (e) {
+      $('submitMsg').textContent = '提交失败：' + e.message + '（请检查网络或后端连接）';
+      $('submitMsg').className = 'msg err';
+      btn.disabled = false;
+    }
+  });
+
+  async function loadWall() {
+    try {
+      var data = await api('/api/submissions');
+      $('wallSummary').innerHTML = '<p>已提交 <strong>' + data.count + '</strong> 人，班级平均连接词密度 <strong>' + fmt(data.avgDensity) + '</strong>。</p>';
+      var rows = data.items || [];
+      if (!rows.length) {
+        $('wallBody').innerHTML = '<tr><td colspan="7">还没有提交，快来做第一个吧。</td></tr>';
+        return;
+      }
+      $('wallBody').innerHTML = rows.map(function (r) {
+        var t = r.created_at ? new Date(r.created_at).toLocaleString('zh-CN', { hour12: false }) : '';
+        var avg = (r.avg_sentence_length === null || r.avg_sentence_length === undefined) ? '—' : fmt(Number(r.avg_sentence_length));
+        return '<tr><td>' + esc(r.nickname || '匿名') + '</td><td>' + (r.text_lang === 'zh' ? '中文' : '英文') + '</td><td>' + r.word_count + '</td><td>' + r.connective_count + '</td><td>' + fmt(Number(r.density)) + '</td><td>' + avg + '</td><td>' + esc(t) + '</td></tr>';
+      }).join('');
+    } catch (e) {
+      $('wallSummary').innerHTML = '<p class="msg err">班级数据墙未连接：' + esc(e.message) + '</p>';
+      $('wallBody').innerHTML = '<tr><td colspan="7">未连接后端</td></tr>';
+    }
+  }
+  $('btnRefreshWall').addEventListener('click', loadWall);
+
+  $('btnClear').addEventListener('click', async function () {
+    var pin = $('clearPin').value.trim();
+    if (!pin) {
+      $('clearMsg').textContent = '请先输入教师 PIN。';
+      $('clearMsg').className = 'msg err';
+      return;
+    }
+    if (!window.confirm('确定要清空全部班级数据吗？提交、投票、小测记录都会被删除，不可恢复。')) return;
+    try {
+      await api('/api/clear', { method: 'POST', body: { pin: pin } });
+      $('clearMsg').textContent = '已清空。';
+      $('clearMsg').className = 'msg ok';
+      $('clearPin').value = '';
+      loadWall();
+      loadVotes();
+      loadStats();
+    } catch (e) {
+      $('clearMsg').textContent = '清空失败：' + e.message;
+      $('clearMsg').className = 'msg err';
+    }
+  });
+
+  /* ================= 4. 验证环节 ================= */
+  var CHOICE_LABEL = { confirm: '证实', refute: '证伪', unsure: '存疑' };
+  function renderHyps() {
+    var html = '';
+    HYPS.forEach(function (h) {
+      html += '<h3>' + esc(h.title) + '</h3>';
+      html += '<p><strong>数据怎么说：</strong>' + esc(h.dataSay) + '</p>';
+      html += '<div class="vote-btns">' +
+        '<button class="btn small" type="button" data-h="' + h.id + '" data-choice="confirm">证实</button>' +
+        '<button class="btn small secondary" type="button" data-h="' + h.id + '" data-choice="refute">证伪</button>' +
+        '<button class="btn small secondary" type="button" data-h="' + h.id + '" data-choice="unsure">存疑</button>' +
+        '</div>';
+      html += '<div id="voteBars-' + h.id + '"><p class="subtitle">正在加载票数…</p></div>';
+    });
+    $('hypotheses').innerHTML = html;
+    document.querySelectorAll('#hypotheses [data-h]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var h = btn.getAttribute('data-h');
+        var choice = btn.getAttribute('data-choice');
+        try {
+          await api('/api/votes', { method: 'POST', body: { hypothesis: h, choice: choice } });
+          loadVotes();
+        } catch (e) {
+          window.alert('投票失败：' + e.message);
+        }
+      });
+    });
+  }
+
+  async function loadVotes() {
+    try {
+      var data = await api('/api/votes');
+      HYPS.forEach(function (h) {
+        var t = (data.tally && data.tally[h.id]) || { confirm: 0, refute: 0, unsure: 0, total: 0 };
+        var el = $('voteBars-' + h.id);
+        if (!el) return;
+        if (!t.total) {
+          el.innerHTML = '<p class="subtitle">还没有投票。</p>';
+          return;
+        }
+        el.innerHTML = ['confirm', 'refute', 'unsure'].map(function (c) {
+          var pct = Math.round((t[c] / t.total) * 100);
+          var cls = c === 'confirm' ? 'green' : (c === 'refute' ? 'orange' : '');
+          return '<div class="bar-row"><span>' + CHOICE_LABEL[c] + ' ' + t[c] + ' 票</span>' +
+            '<div class="bar"><i class="' + cls + '" style="width:' + Math.max(1, pct) + '%"></i></div>' +
+            '<span class="bar-val">' + pct + '%</span></div>';
+        }).join('') + '<p class="subtitle">共 ' + t.total + ' 票</p>';
+      });
+    } catch (e) {
+      HYPS.forEach(function (h) {
+        var el = $('voteBars-' + h.id);
+        if (el) el.innerHTML = '<p class="msg err">票数未连接：' + esc(e.message) + '</p>';
+      });
+    }
+  }
+
+  /* ================= 6. 课堂小测 ================= */
+  var quizAnswers = [null, null, null];
+  var quizSubmitted = false;
+  function renderQuiz() {
+    var html = '';
+    QUIZ.forEach(function (q, qi) {
+      html += '<h3>' + esc(q.q) + '</h3>';
+      q.opts.forEach(function (opt, oi) {
+        html += '<button class="quiz-opt" type="button" data-q="' + qi + '" data-o="' + oi + '">' + esc(opt) + '</button>';
+      });
+      html += '<p class="explain" id="explain' + qi + '">' + esc(q.explain) + '</p>';
+    });
+    $('quizBox').innerHTML = html;
+    document.querySelectorAll('#quizBox .quiz-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var qi = Number(btn.getAttribute('data-q'));
+        var oi = Number(btn.getAttribute('data-o'));
+        if (quizAnswers[qi] !== null) return;
+        quizAnswers[qi] = oi;
+        var q = QUIZ[qi];
+        document.querySelectorAll('#quizBox [data-q="' + qi + '"]').forEach(function (b) {
+          b.disabled = true;
+          var boi = Number(b.getAttribute('data-o'));
+          if (boi === q.answer) b.classList.add('correct');
+          else if (boi === oi) b.classList.add('wrong');
+        });
+        $('explain' + qi).classList.add('show');
+        if (quizAnswers.every(function (a) { return a !== null; })) showQuizResult();
+      });
+    });
+  }
+
+  function showQuizResult() {
+    var score = 0;
+    quizAnswers.forEach(function (a, i) { if (a === QUIZ[i].answer) score++; });
+    var cheer = score === 3 ? '满分！形合与意合已经掌握了。'
+      : score === 2 ? '不错！再想想错的那一题。'
+      : score === 1 ? '刚起步，别灰心，回看数据实验室再试一次。'
+      : '别灰心，先回看理论导读和数据实验室，下节课再测一次。';
+    $('quizResult').innerHTML =
+      '<div class="note green"><strong>得分 ' + score + ' / 3</strong> —— ' + cheer + '</div>' +
+      '<label for="quizNickname">昵称 / 学号后两位（提交得分用）</label>' +
+      '<input type="text" id="quizNickname" maxlength="20" placeholder="例如：小林 / 07">' +
+      '<div><button class="btn" id="btnSubmitQuiz" type="button">提交得分</button></div>' +
+      '<p class="msg" id="quizSubmitMsg"></p>';
+    $('btnSubmitQuiz').addEventListener('click', async function () {
+      if (quizSubmitted) return;
+      quizSubmitted = true;
+      try {
+        await api('/api/quiz', {
+          method: 'POST',
+          body: { nickname: $('quizNickname').value.trim() || '匿名', score: score, answers: quizAnswers.slice() }
+        });
+        $('quizSubmitMsg').textContent = '得分已提交。';
+        $('quizSubmitMsg').className = 'msg ok';
+      } catch (e) {
+        $('quizSubmitMsg').textContent = '提交失败：' + e.message;
+        $('quizSubmitMsg').className = 'msg err';
+        quizSubmitted = false;
+      }
+    });
+  }
+
+  /* ================= 8. 教师统计 ================= */
+  function statCard(label, value) {
+    return '<div class="metric"><div class="num">' + esc(String(value)) + '</div><div class="lbl">' + esc(label) + '</div></div>';
+  }
+  function countBars(rows) {
+    var max = 0;
+    rows.forEach(function (r) { if (r.value > max) max = r.value; });
+    if (max === 0) max = 1;
+    return rows.map(function (r) {
+      var w = Math.max(1, Math.round((r.value / max) * 100));
+      return '<div class="bar-row"><span>' + esc(r.label) + '</span>' +
+        '<div class="bar"><i style="width:' + w + '%"></i></div>' +
+        '<span class="bar-val">' + r.value + '</span></div>';
+    }).join('');
+  }
+  async function loadStats() {
+    var box = $('statsBox');
+    box.innerHTML = '<p>正在加载统计…</p>';
+    try {
+      var d = await api('/api/stats');
+      var html = '<div class="stat-cards">' +
+        statCard('提交人数', d.submissionCount) +
+        statCard('班级平均密度', fmt(d.avgDensity)) +
+        statCard('小测人数', d.quizCount) +
+        statCard('小测平均分', fmt(d.avgScore) + ' / 3') +
+        '</div>';
+      html += '<h3>提交语言分布（份数）</h3>' + countBars([
+        { label: '英文文本', value: d.byLang.en },
+        { label: '中文文本', value: d.byLang.zh }
+      ]);
+      html += '<h3>投票分布</h3>';
+      ['H1', 'H2', 'H3'].forEach(function (h) {
+        var t = d.voteDist[h] || { confirm: 0, refute: 0, unsure: 0, total: 0 };
+        html += '<p><strong>' + h + '</strong>（共 ' + t.total + ' 票）：证实 ' + t.confirm + ' · 证伪 ' + t.refute + ' · 存疑 ' + t.unsure + '</p>';
+      });
+      html += '<h3>小测得分分布（人数）</h3>' + countBars([
+        { label: '0 分', value: d.scoreDist[0] || 0 },
+        { label: '1 分', value: d.scoreDist[1] || 0 },
+        { label: '2 分', value: d.scoreDist[2] || 0 },
+        { label: '3 分', value: d.scoreDist[3] || 0 }
+      ]);
+      box.innerHTML = html;
+    } catch (e) {
+      box.innerHTML = '<p class="msg err">统计未连接：' + esc(e.message) + '</p>';
+    }
+  }
+  $('btnRefreshStats').addEventListener('click', loadStats);
+
+  /* ================= 初始化 ================= */
+  renderHyps();
+  renderQuiz();
+  checkBackend().then(function () {
+    loadWall();
+    loadVotes();
+  });
+})();
+</script>
+</body>
+</html>
