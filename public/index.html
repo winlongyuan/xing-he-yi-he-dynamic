@@ -63,6 +63,19 @@
     padding: 12px 14px; display: block;
   }
   nav.mainnav a:hover { background: var(--brand-dark); }
+  nav.coursenav {
+    background: #fdf6ec; color: var(--ink);
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 8px; padding: 12px 8px; border-bottom: 1px solid var(--line);
+    font-size: 1rem;
+  }
+  nav.coursenav span { font-weight: 700; color: var(--accent); }
+  nav.coursenav a {
+    color: var(--brand-dark); text-decoration: none; font-weight: 700;
+    padding: 6px 16px; border: 1.5px solid var(--brand); border-radius: 999px;
+    background: #fff;
+  }
+  nav.coursenav a:hover { background: var(--brand); color: #fff; }
   main { max-width: 1080px; margin: 0 auto; padding: 20px 16px 60px; }
   section.card {
     background: var(--card); border: 1px solid var(--line);
@@ -206,6 +219,12 @@
   <a href="#quiz" data-i18n="nav_quiz">课堂小测</a>
   <a href="#guide" data-i18n="nav_guide">教师指南</a>
   <a href="#stats" data-i18n="nav_stats">教师统计</a>
+</nav>
+
+<nav class="coursenav">
+  <span>本课配套课件：</span>
+  <a href="zheng-he-dian-du-fan-yi-ke-jian.html">郑和点读翻译课件</a>
+  <a href="si-ji-fan-yi-zhen-ti-hu-dong-ke-tang.html">四级翻译真题互动课堂</a>
 </nav>
 
 <main>
