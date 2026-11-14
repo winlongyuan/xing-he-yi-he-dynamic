@@ -1,7 +1,7 @@
 // test/smoke.mjs — 本地冒烟测试（无需部署、无需真实 Supabase）
 // 运行：npm test
 // 验证：① 连接词统计算法与教材实测值一致；② 三组汇总均值；③ SQL 文件结构；
-//       ④ 五个 API 处理函数在 mock fetch 下跑通（含 PIN 验证与方法守卫）。
+//       ④ 六个 API 处理函数在 mock fetch 下跑通（含 PIN 验证与方法守卫）。
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -86,7 +86,9 @@ check('括号配对', open === close, '左 ' + open + ' 右 ' + close);
 /* ---------- 4. vercel.json 与 .env.example ---------- */
 console.log('\n[4] 配置文件');
 const vercelJson = JSON.parse(readFileSync(path.join(root, 'vercel.json'), 'utf8'));
-check('vercel.json 指定 Node 24 运行时', vercelJson.functions && vercelJson.functions['api/*.js'].runtime === 'nodejs24.x');
+const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+check('package.json engines 指定 Node 24', pkg.engines && pkg.engines.node === '24.x');
+check('vercel.json 不含 functions.runtime（该字段只接受 @vercel/node@x 这类包名，写版本号会导致部署报 invalid_function_runtime）', !(vercelJson.functions && vercelJson.functions['api/*.js'] && vercelJson.functions['api/*.js'].runtime));
 const envExample = readFileSync(path.join(root, '.env.example'), 'utf8');
 ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'TEACHER_PIN'].forEach((k) => {
   check('.env.example 含 ' + k, envExample.includes(k));
@@ -144,6 +146,7 @@ const votes = require(path.join(root, 'api/votes.js'));
 const quiz = require(path.join(root, 'api/quiz.js'));
 const stats = require(path.join(root, 'api/stats.js'));
 const clear = require(path.join(root, 'api/clear.js'));
+const gate = require(path.join(root, 'api/gate.js'));
 
 // submissions GET
 {
@@ -209,6 +212,25 @@ const clear = require(path.join(root, 'api/clear.js'));
   await clear(mockReq({ method: 'POST', body: { pin: '1234' } }), res2);
   const after = fetchCalls.filter((c) => c.method === 'DELETE').length;
   check('POST /api/clear 正确 PIN → 200，三张表各删一次', res2.statusCode === 200 && after - before === 3, res2.body);
+}
+// gate：正确口令 → 200；错误口令 → 403；未设 STUDENT_PIN → 503；GET → 405
+// 注意：测试用 dummy 口令 test-pin，绝不用真实课堂口令（测试文件在公开仓库里）
+{
+  process.env.STUDENT_PIN = 'test-pin';
+  const res = mockRes();
+  await gate(mockReq({ method: 'POST', body: { pin: 'test-pin' } }), res);
+  check('POST /api/gate 正确口令 → 200', res.statusCode === 200, res.body);
+  const res2 = mockRes();
+  await gate(mockReq({ method: 'POST', body: { pin: 'wrong' } }), res2);
+  check('POST /api/gate 错误口令 → 403', res2.statusCode === 403);
+  delete process.env.STUDENT_PIN;
+  const res3 = mockRes();
+  await gate(mockReq({ method: 'POST', body: { pin: 'test-pin' } }), res3);
+  check('POST /api/gate 未设 STUDENT_PIN → 503', res3.statusCode === 503);
+  process.env.STUDENT_PIN = 'test-pin';
+  const res4 = mockRes();
+  await gate(mockReq({ method: 'GET' }), res4);
+  check('GET /api/gate → 405', res4.statusCode === 405);
 }
 // 方法守卫：OPTIONS → 204；DELETE 到 submissions → 405
 {
