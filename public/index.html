@@ -160,9 +160,32 @@
     section.card { padding: 18px 14px; }
     nav.mainnav a { padding: 10px 8px; font-size: 0.95rem; }
   }
+  /* 课堂口令门：未解锁时隐藏全部课件内容，只显示口令卡 */
+  body.locked header, body.locked nav, body.locked main { display: none; }
+  .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .gate-card { max-width: 480px; width: 100%; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08); }
+  .gate-card h1 { font-size: 1.35rem; margin: 0 0 8px; }
+  .gate-card p { color: var(--muted); }
+  .gate-card label { display: block; font-weight: 700; margin: 14px 0 6px; }
+  .gate-card input { width: 100%; box-sizing: border-box; font-size: 1.05rem; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 8px; }
+  .gate-card .btn { margin-top: 14px; }
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <h1>形合与意合 · 课堂数据互动实验室</h1>
+    <p>《英汉语言对比数据工程》第三章 · 动态版</p>
+    <p>请输入课堂口令进入实验室（口令由老师在课上公布）。</p>
+    <form id="gateForm">
+      <label for="gatePin">课堂口令</label>
+      <input type="password" id="gatePin" autocomplete="off" placeholder="请输入课堂口令">
+      <button class="btn" id="gateBtn" type="submit">进入实验室</button>
+      <p class="msg" id="gateMsg"></p>
+    </form>
+  </div>
+</div>
 
 <header class="topbar">
   <h1>形合与意合 · 课堂数据互动实验室</h1>
@@ -509,6 +532,58 @@
       throw new Error((data && data.error) || ('HTTP ' + res.status));
     }
     return data;
+  }
+
+  /* ================= 课堂口令门（服务器端验证 /api/gate） ================= */
+  var GATE_KEY = 'lab_gate_ok';
+  function bootAfterUnlock() {
+    checkBackend().then(function () {
+      loadWall();
+      loadVotes();
+    });
+  }
+  function unlockGate() {
+    document.body.classList.remove('locked');
+    var g = document.getElementById('gate');
+    if (g) g.remove();
+    try { sessionStorage.setItem(GATE_KEY, '1'); } catch (e) {}
+    bootAfterUnlock();
+  }
+  function initGate() {
+    var ok = false;
+    try { ok = sessionStorage.getItem(GATE_KEY) === '1'; } catch (e) {}
+    if (ok) {
+      document.body.classList.remove('locked');
+      var g0 = document.getElementById('gate');
+      if (g0) g0.remove();
+      bootAfterUnlock();
+      return;
+    }
+    document.getElementById('gateForm').addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      var pin = document.getElementById('gatePin').value.trim();
+      var msg = document.getElementById('gateMsg');
+      var btn = document.getElementById('gateBtn');
+      if (!pin) {
+        msg.textContent = '请先输入课堂口令。';
+        msg.className = 'msg err';
+        return;
+      }
+      btn.disabled = true;
+      msg.textContent = '正在验证…';
+      msg.className = 'msg';
+      try {
+        await api('/api/gate', { method: 'POST', body: { pin: pin } });
+        unlockGate();
+      } catch (e) {
+        msg.textContent = e.message || '口令不对，请重新输入';
+        msg.className = 'msg err';
+        document.getElementById('gatePin').value = '';
+        document.getElementById('gatePin').focus();
+        btn.disabled = false;
+      }
+    });
+    document.getElementById('gatePin').focus();
   }
 
   function metricCards(r) {
@@ -905,10 +980,7 @@
   /* ================= 初始化 ================= */
   renderHyps();
   renderQuiz();
-  checkBackend().then(function () {
-    loadWall();
-    loadVotes();
-  });
+  initGate();
 })();
 </script>
 </body>

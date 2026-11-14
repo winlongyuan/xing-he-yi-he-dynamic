@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四级翻译真题互动课堂</title>
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#f6f4ee;
+  --panel:#fffdf8;
+  --panel2:#efe9dc;
+  --ink:#22303a;
+  --ink-soft:#5a6a74;
+  --line:#ddd3bf;
+  --accent:#b03a2e;
+  --accent-ink:#ffffff;
+  --teal:#17635c;
+  --teal-bg:#e3efec;
+  --gold:#a86e12;
+  --gold-bg:#f7ecd2;
+  --good:#2e7d46;
+  --good-bg:#e2f1e6;
+  --bad:#b03a2e;
+  --bad-bg:#f9e6e2;
+  --shadow:0 1px 3px rgba(60,45,20,.10);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#14181b;
+    --panel:#1e2429;
+    --panel2:#262e34;
+    --ink:#e8e4da;
+    --ink-soft:#a7b0b6;
+    --line:#3a434a;
+    --accent:#d96a58;
+    --accent-ink:#1a1210;
+    --teal:#7fc4ba;
+    --teal-bg:#1d3230;
+    --gold:#e0aa4e;
+    --gold-bg:#38300f;
+    --good:#8fd0a2;
+    --good-bg:#1d3325;
+    --bad:#e08a7c;
+    --bad-bg:#3a231f;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",sans-serif;
+  font-size:16px;line-height:1.65;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:24px;margin:6px 0 4px;letter-spacing:.02em}
+.lede{color:var(--ink-soft);margin:0 0 16px;font-size:15px}
+h2{font-size:19px;margin:0}
+button{font:inherit;cursor:pointer}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:40px;padding:8px 16px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+}
+.btn:hover{border-color:var(--ink-soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.small{min-height:36px;padding:5px 12px;font-size:14px;border-radius:7px}
+.btn:disabled{opacity:.45;cursor:default}
+/* 年份与篇目选择 */
+.yearbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 12px}
+.chip{
+  min-height:40px;padding:7px 16px;border-radius:999px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.papergrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:10px;margin-bottom:22px}
+.papercard{
+  text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;box-shadow:var(--shadow);min-height:44px;color:var(--ink);
+}
+.papercard:hover{border-color:var(--accent)}
+.papercard.on{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:-1px}
+.papercard .pl{font-weight:700;font-size:16px}
+.papercard .pt{color:var(--ink-soft);font-size:13.5px;margin-top:2px;line-height:1.45}
+.papercard .pm{color:var(--gold);font-size:12.5px;margin-top:5px;font-weight:600}
+/* 工作区 */
+.ws{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:20px 20px 24px}
+.ws-head{border-bottom:2px solid var(--panel2);padding-bottom:12px;margin-bottom:6px}
+.ws-head .topic{color:var(--ink-soft);font-size:15px;margin-top:3px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px}
+.tab{
+  min-height:44px;padding:9px 18px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--ink);font-size:15.5px;font-weight:600;
+}
+.tab.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.toolbar .spacer{flex:1}
+.timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:17px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 14px;min-height:40px;display:inline-flex;align-items:center}
+.progress{height:10px;background:var(--panel2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.progress>i{display:block;height:100%;background:var(--teal);width:0;transition:width .3s}
+.progress-note{font-size:14px;color:var(--ink-soft);margin:7px 0 16px}
+/* 句子卡 */
+.scard{border:1px solid var(--line);border-radius:10px;padding:15px 16px;margin-bottom:14px;background:var(--panel)}
+.scard .snum{display:inline-block;font-size:12.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border-radius:5px;padding:2px 8px;margin-bottom:7px}
+.scard .zh{font-size:17.5px;line-height:1.75;margin:0 0 10px}
+.scard textarea{
+  width:100%;min-height:74px;resize:vertical;border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);color:var(--ink);font-size:16px;line-height:1.6;padding:10px 12px;
+  font-family:Georgia,"Times New Roman",serif;
+}
+.scard textarea:focus{outline:2px solid var(--teal);outline-offset:0;border-color:var(--teal)}
+.scard .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.refbox{
+  margin-top:12px;background:var(--teal-bg);border-radius:8px;padding:11px 14px;
+  font-family:Georgia,"Times New Roman",serif;font-size:16.5px;line-height:1.65;color:var(--ink);
+}
+.refbox .rlab{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--teal);display:block;margin-bottom:3px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.rate{display:none;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.rate.show{display:flex}
+.rate .rl{font-size:13.5px;color:var(--ink-soft)}
+.rate button{min-height:36px;padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:14px}
+.rate button.on{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:600}
+.doneflag{font-size:13.5px;color:var(--good);font-weight:700}
+/* 对照 */
+.cmp{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cmp-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.cmp-row:last-child{border-bottom:none}
+.cmp-row>div{padding:13px 15px}
+.cmp-row .czh{font-size:16.5px;line-height:1.75}
+.cmp-row .cen{font-family:Georgia,"Times New Roman",serif;font-size:16px;line-height:1.65;background:var(--teal-bg)}
+.cmp-row .cen.hidden{color:transparent;text-shadow:0 0 12px var(--ink-soft);user-select:none;background:var(--panel2)}
+.cmp-head{display:grid;grid-template-columns:1fr 1fr;background:var(--panel2);font-weight:700;font-size:14.5px}
+.cmp-head>div{padding:9px 15px}
+@media (max-width:640px){
+  .cmp-row,.cmp-head{grid-template-columns:1fr}
+  .cmp-row .czh{border-bottom:1px dashed var(--line)}
+}
+/* 要点 */
+.notes-list{margin:0;padding-left:22px}
+.notes-list li{margin-bottom:9px;font-size:16px;line-height:1.75}
+.topicbox{background:var(--gold-bg);border-radius:8px;padding:11px 15px;margin-bottom:16px;font-size:15.5px}
+/* 小测 */
+.qcard{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.qcard .qq{font-size:16.5px;font-weight:600;margin:0 0 12px;line-height:1.7}
+.opt{
+  display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;
+  padding:11px 13px;margin-bottom:8px;font-size:15.5px;line-height:1.55;min-height:44px;cursor:pointer;
+}
+.opt input{margin-top:4px;width:18px;height:18px;flex:none;accent-color:var(--accent)}
+.opt.sel{border-color:var(--accent);outline:1px solid var(--accent)}
+.opt.correct{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.why{display:none;margin-top:10px;font-size:14.5px;line-height:1.7;background:var(--panel2);border-radius:8px;padding:10px 13px}
+.why.show{display:block}
+.why b{color:var(--accent)}
+.qfoot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
+.qfoot .hint{font-size:13.5px;color:var(--ink-soft)}
+.scorebox{display:none;background:var(--gold-bg);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:16.5px}
+.scorebox.show{display:block}
+footer{margin-top:30px;color:var(--ink-soft);font-size:13.5px;line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+footer a{color:var(--teal)}
+.empty{color:var(--ink-soft);padding:26px 0;text-align:center}
+@media (prefers-reduced-motion: reduce){
+  .progress>i{transition:none}
+}
+/* 课堂口令门 */
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.gate-card{
+  width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);padding:28px 24px 24px;text-align:center;
+}
+.gate-card h2{font-size:20px;margin:0 0 8px}
+.gate-card p{color:var(--ink-soft);font-size:15px;margin:0 0 18px}
+.gate-card form{display:flex;flex-direction:column;gap:10px}
+.gate-card input{
+  width:100%;min-height:48px;border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);color:var(--ink);font-size:17px;padding:10px 14px;text-align:center;
+}
+.gate-card input:focus{outline:2px solid var(--teal);outline-offset:0;border-color:var(--teal)}
+.gate-card .btn{min-height:48px;font-size:16px}
+.gate-error{
+  display:none;color:var(--bad);background:var(--bad-bg);border-radius:8px;
+  padding:9px 12px;font-size:14.5px;margin:0;
+}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <h2>请输入课堂口令</h2>
+    <p>输入老师在课堂上公布的口令，即可进入四级翻译真题互动课堂。</p>
+    <form id="gateForm" autocomplete="off">
+      <label for="gateInput" style="position:absolute;left:-9999px">课堂口令</label>
+      <input id="gateInput" type="text" placeholder="课堂口令" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <p class="gate-error" id="gateError" role="alert">口令不对，请重新输入</p>
+      <button class="btn primary" type="submit">进入课堂</button>
+    </form>
+  </div>
+</div>
+<div class="wrap" id="pageContent" hidden>
+  <h1>四级翻译真题 · 互动课堂</h1>
+  <p class="lede">2022–2026 年共 33 篇汉译英真题：先逐句练，再对参考译文，看重点讲解，最后做小测。选一篇开始上课。</p>
+
+  <div class="yearbar" id="yearbar" role="group" aria-label="按年份筛选"></div>
+  <div class="papergrid" id="papergrid"></div>
+
+  <section class="ws" id="ws" aria-live="polite">
+    <div class="ws-head">
+      <h2 id="ws-title"></h2>
+      <div class="topic" id="ws-topic"></div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" data-tab="practice" role="tab">① 逐句翻译练习</button>
+      <button class="tab" data-tab="compare" role="tab">② 参考译文对照</button>
+      <button class="tab" data-tab="notes" role="tab">③ 重点词语与句式</button>
+      <button class="tab" data-tab="quiz" role="tab">④ 课堂小测</button>
+    </div>
+    <div id="pane"></div>
+  </section>
+
+  <footer>
+    <div>参考译文为懒笔记整理版，供课堂对照使用。材料来源：<a href="https://english-exam.lazynote.cn/cet4/sections/chinese-english-translation/" target="_blank" rel="noopener">懒笔记 · 大学英语四级翻译真题</a>。</div>
+    <div>学生在本页输入的译文与作答只保留在本次打开期间，关掉页面即重置，不会上传或保存。</div>
+  </footer>
+</div>
+
+<script>
+/* 课堂口令门：输对才显示内容；本次打开期间记住（sessionStorage），关掉页面后下次打开需重新输入 */
+(function(){
+  var KEY = "cet4_classroom_gate";
+  var PASS = "翻译2026";
+  var gate = document.getElementById("gate");
+  var content = document.getElementById("pageContent");
+  function unlock(){
+    gate.style.display = "none";
+    content.hidden = false;
+  }
+  var remembered = false;
+  try { remembered = sessionStorage.getItem(KEY) === "1"; } catch(e) {}
+  if (remembered) { unlock(); return; }
+  var form = document.getElementById("gateForm");
+  var input = document.getElementById("gateInput");
+  var err = document.getElementById("gateError");
+  form.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (input.value.trim() === PASS) {
+      err.style.display = "none";
+      try { sessionStorage.setItem(KEY, "1"); } catch(e) {}
+      unlock();
+    } else {
+      err.style.display = "block";
+      input.value = "";
+      input.focus();
+    }
+  });
+  input.focus();
+})();
+</script>
+<script>
+var PAPERS = [{"id": "2022-06-1", "label": "2022年6月第1套", "topic": "借\"拔苗助长\"寓言劝家长让孩子自然成长", "sentences": [{"zh": "从前有个农夫嫌他种的禾苗长得慢，就到地里把禾苗一株株地拔高了一点。", "en": "Once upon a time, a farmer, thinking that the rice seedlings he had planted were growing too slowly, went into the field and pulled them up one by one to make each a little taller."}, {"zh": "回家后他对家人说：\"今天可真把我累坏了！但我总算让禾苗一下子长高了。\"", "en": "After returning home, he told his family, \"I'm really worn out today, but I have finally made the rice seedlings grow taller all at once!\""}, {"zh": "他儿子到地里去一看，禾苗都已死光了。", "en": "When his son went to the field, he found that all the rice seedlings had already withered."}, {"zh": "现在有些家长急于让孩子成功，往往步那个农夫的后尘，搞得孩子苦不堪言，却不见孩子学业长进。", "en": "Nowadays, some parents, eager to see their children succeed, often follow in the farmer's footsteps, causing their children great suffering, yet seeing no progress in their studies."}, {"zh": "这样的家长是否该对这个问题有所醒悟，让孩子自然成长呢？", "en": "Shouldn't such parents wake up to this problem and let their children grow naturally?"}], "notes": "时态一般过去时为主、一般现在时为辅（寓言过去、议论现在）。统一译法：禾苗=rice seedlings；“步……后尘”=follow in the farmer's footsteps（意译）；“拔高”统一 pull up one by one。重点句式：thinking that…分词状语表原因；make sb. do 使役结构；eager to…前置状语；causing…/yet seeing…分词表结果与转折；Shouldn't…反问句式。易错：had planted 过去完成时表先后；worn out 表“累坏了”；progress 不可数。", "year": 2022}, {"id": "2022-06-2", "label": "2022年6月第2套", "topic": "寓言故事·叙述过去事件——亡羊补牢，出了问题及时补救", "sentences": [{"zh": "从前有个人养了一群羊。", "en": "Long long ago, there was a man who raised a flock of sheep."}, {"zh": "一天早上他准备出去放羊，发现少了一只。", "en": "One morning, when he was about to take the sheep out to graze, he found that one of them was missing."}, {"zh": "他仔细一看，看到羊栏 (sheepfold) 上有个窟窿。", "en": "On a closer look, he saw that there was a hole in the sheepfold."}, {"zh": "显然，夜间有狼钻进羊圈叼走了羊。", "en": "Obviously, during the night a wolf had got into the sheepfold and carried off a sheep."}, {"zh": "邻居劝他修羊栏，可是他不听。", "en": "His neighbour advised him to mend the sheepfold, but he would not listen."}, {"zh": "第二天，他发现狼又通过窟窿叼走一只羊。", "en": "The next day, he found that another sheep had been carried off by the wolf through the hole."}, {"zh": "他想起邻居的话，就赶快堵上窟窿,把羊栏补好。", "en": "Remembering what his neighbour had said, he quickly blocked up the hole and mended the sheepfold."}, {"zh": "此后，他的羊再也没有被狼叼走。", "en": "From then on, his sheep were never carried off by wolves again."}, {"zh": "故事告诉我们:出了问题及时补救，可以防止蒙受更大损失。", "en": "The story tells us that fixing problems in time can prevent us from suffering greater losses."}], "notes": "全篇一般过去时，末句议论用一般现在时。统一译法：羊栏/羊圈=sheepfold；窟窿=a/the hole；叼走=carry off；修=mend。重点句式：There be 引入人物；when 时间状语从句；advise sb. to do；Remembering…分词起句表因果；被动语态 were carried off；动名词作主语。易错：sheep 单复数同形，a flock of sheep；过去完成时 had got into / had carried off 表“过去的过去”；would not listen 表固执拒绝。", "year": 2022}, {"id": "2022-06-3", "label": "2022年6月第3套", "topic": "守株待兔寓言故事——讽刺把偶然当必然", "sentences": [{"zh": "从前, 有个农夫正在地里耕作, 突然看见一只兔子飞奔而过，撞在一棵大树上死了。", "en": "Once upon a time, a farmer was working in his field when he suddenly saw a hare dash by and run into a big tree, where it was killed on the spot."}, {"zh": "农夫毫不费力就吃到了兔肉, 心里非常高兴。", "en": "The farmer got a hearty meal of rabbit meat without any effort and was overjoyed."}, {"zh": "他想, \"如果总是这样该多好啊!\"", "en": "He thought to himself, \"How wonderful it would be if this could happen every day!\""}, {"zh": "于是，他不再耕作, 每天守候在那棵树旁，等待着能再捡到撞死在树上的兔子。", "en": "From then on, he gave up farming and stayed by that tree every day, hoping to pick up another hare that would crash into it and die."}, {"zh": "他等呀等，等了一天又一天, 田地也荒芜了, 却再也没有等到第二只兔子。", "en": "He waited day after day, his fields gradually overgrown with weeds, yet no second hare ever came."}, {"zh": "人们因而都嘲笑他把偶然当成了必然。", "en": "People therefore laughed at him for taking a chance occurrence as an inevitable one."}], "notes": "全篇一般过去时（“正在耕作”用过去进行时）。统一译法：农夫=a farmer；兔子=a hare；把偶然当成必然=take a chance occurrence as an inevitable one。重点句式：was doing…when…背景加突发；without any effort 介词短语；How wonderful it would be if…虚拟感叹句；hoping to…表目的；laugh at sb. for doing。易错：stop doing（不再做）≠stop to do；another hare 表“再一只”；never…again 表“再也没…”。", "year": 2022}, {"id": "2022-09-1", "label": "2022年9月第1套", "topic": "太极拳的客观介绍", "sentences": [{"zh": "太极拳 (Taijiquan)起源于中国古代，是中国武术 (martial art) 的一个重要分支。", "en": "Taijiquan originated from ancient China and is an important branch of Chinese martial arts."}, {"zh": "练太极拳最初是为了自卫，现在是促进身心健康的有效锻炼方式。", "en": "Practicing Taijiquan was originally for self-defense, but it is now an effective form of exercise to promote physical and mental health."}, {"zh": "大量研究表明，这种锻炼方式有助于保持力量、灵活性和平衡力，并减少压力和焦虑。", "en": "A large number of studies show that this form of exercise helps maintain strength, flexibility and balance, and reduce stress and anxiety."}, {"zh": "太极拳练习起来既容易又愉快，通过轻柔、流畅的动作，促使心情平静、头脑清晰。", "en": "Taijiquan is both easy and enjoyable to practice, and with its gentle and flowing movements, it calms the mind and clears the head."}, {"zh": "今天，太极拳已经传播到世界各地，深受广大健身者的喜爱。", "en": "Today, Taijiquan has spread to all parts of the world and is widely loved by fitness enthusiasts."}], "notes": "全篇一般现在时（起源用过去时、“已经传播”用现在完成时）。统一译法：太极拳=Taijiquan；中国武术=Chinese martial arts；身心健康=physical and mental health。重点句式：动名词作主语；studies show that…宾语从句；both…and…；with 介词短语表方式；被动 is widely loved by…。易错：A large number of studies 后谓语用 show；this form of exercise 回指上句；strength/flexibility/balance 不加冠词；第三人称单数 -s 易丢。", "year": 2022}, {"id": "2022-09-2", "label": "2022年9月第2套", "topic": "春节红包习俗介绍", "sentences": [{"zh": "按照中国民间的传统习俗，春节期间长辈通常会给孩子发红包，俗称发压岁钱 (lucky money), 以表达对孩子的祝福，祝他们好运。", "en": "According to traditional Chinese folk customs, during the Spring Festival the elders usually give children red envelopes, commonly known as lucky money, to express their blessings and wish them good luck."}, {"zh": "如今，红包不仅是给孩子的礼物，而且经常也是给长辈或亲朋好友的礼物。", "en": "Nowadays, red envelopes are not only a gift for children but also often a gift for the elders, relatives and friends."}, {"zh": "近年来，随着微信用户数量的增加，微信红包变得愈加流行。", "en": "In recent years, with the increasing number of WeChat users, WeChat red envelopes have become increasingly popular."}, {"zh": "欢度春节时，人们经常互发微信红包表达问候。", "en": "When celebrating the Spring Festival, people often send WeChat red envelopes to each other to express their greetings."}, {"zh": "这无疑是一种与远方亲友联系的便捷方式。", "en": "This is undoubtedly a convenient way of staying in touch with relatives and friends far away."}], "notes": "全篇一般现在时（“近年来”用现在完成时）。统一译法：春节=the Spring Festival；红包=red envelopes；压岁钱=lucky money；微信红包=WeChat red envelopes。重点句式：According to…起句；not only…but also…并列；with…复合结构；When celebrating…时间状语；a convenient way of doing。易错：“互发”须译出 to each other；“这”回指整件事用 This；undoubtedly 插在 is 之后；the number of 中心词是 number。", "year": 2022}, {"id": "2022-09-3", "label": "2022年9月第3套", "topic": "中国戏曲文化介绍", "sentences": [{"zh": "戏曲是一种中国传统的艺术形式，可以追溯到唐朝。", "en": "Chinese opera is a traditional Chinese art form, which dates back to the Tang Dynasty."}, {"zh": "中国戏曲吸引观众的一大特色是其独具风格的脸谱 (facial painting)。", "en": "A major feature of Chinese opera that attracts audiences is its uniquely styled facial painting."}, {"zh": "脸谱代表不同角色的性格和命运。", "en": "Facial paintings represent the personalities and destinies of different characters."}, {"zh": "观众通过观察脸谱能够更好地理解这些角色的故事。", "en": "By observing the facial paintings, the audience can better understand the stories of these characters."}, {"zh": "欣赏戏曲是中国人特别是老年人的一大乐趣。", "en": "Appreciating Chinese opera is a major pleasure for Chinese people, especially the elderly."}, {"zh": "为了吸引更多的年轻观众，传统戏曲正在不断地发展和创新。", "en": "To attract more young audiences, traditional Chinese opera is constantly developing and innovating."}, {"zh": "如今，越来越多的外国观众也喜欢中国戏曲。", "en": "Nowadays, more and more foreign audiences also enjoy Chinese opera."}], "notes": "全篇一般现在时（“正在发展创新”用现在进行时）。统一译法：戏曲=Chinese opera；脸谱=facial painting(s)；唐朝=the Tang Dynasty。重点句式：which dates back to…定语从句；that attracts audiences 定语从句；by doing 表方式；动名词作主语 Appreciating…；to do 表目的；more and more…。易错：dates back to 用现在时（非 dated back）；主语中心词 feature 单数配 is；the elderly 表“老年人”一类人；also 放在实义动词前。", "year": 2022}, {"id": "2022-12-1", "label": "2022年12月第1套", "topic": "客观介绍节气立秋", "sentences": [{"zh": "在中国农历中，立秋 (Start of Autumn)意味着夏天的结束和秋天的开始。", "en": "In the Chinese lunar calendar, the Start of Autumn marks the end of summer and the beginning of autumn."}, {"zh": "立秋带来的首先是天气的变化，气温逐渐下降。", "en": "The Start of Autumn first brings a change in the weather; temperatures gradually drop."}, {"zh": "人们看到树叶开始变黄飘落时，知道秋天已经来临，这就是所谓的\"一叶知秋\"。", "en": "When people see the leaves begin to turn yellow and fall, they know that autumn has arrived; this is the so-called principle that \"one falling leaf heralds the coming of autumn.\""}, {"zh": "但此时酷热的天气并未完全结束，高温通常还会持续一段时间，被称为\"秋老虎\"。", "en": "However, the hot weather has not completely ended at this time; high temperatures usually continue for a while, known as the \"Autumn Tiger.\""}, {"zh": "立秋对农民意义重大，这时各种秋季作物迅速生长、开始成熟，收获的季节即将到来。", "en": "The Start of Autumn is of great significance to farmers, as various autumn crops grow rapidly and begin to ripen at this time, and the harvest season is approaching."}], "notes": "全篇一般现在时（个别句用现在完成时）。统一译法：立秋=the Start of Autumn；中国农历=the Chinese lunar calendar；一叶知秋=one falling leaf heralds the coming of autumn；秋老虎=the \"Autumn Tiger\"。重点句式：状语前置；When/that 从句；However 显转折；known as…后置定语；as 原因状语。易错：marks 第三人称单数；has not completely ended 是部分否定；temperatures 复数；is approaching 表将至。", "year": 2022}, {"id": "2022-12-2", "label": "2022年12月第2套", "topic": "介绍中国传统节气立春", "sentences": [{"zh": "立春 (Start of Spring )在中国农历中表示春天的开始。", "en": "Lichun (Start of Spring) marks the beginning of spring in the Chinese lunar calendar."}, {"zh": "立春之后， 白天变得更长，天气也愈发温暖，万物开始复苏，大地充满生机。", "en": "After Lichun, the days grow longer and the weather becomes warmer; everything comes back to life, and the earth is full of vitality."}, {"zh": "人们常说\"一年之计在于春\"，农民在这个时节开始播种，为全年的丰收打下基础。", "en": "As people often say, \"The whole year's work depends on a good start in spring.\" At this time of year, farmers start sowing to lay the foundation for a good harvest throughout the whole year."}, {"zh": "中国人早在三千年前就己开始在立春这一天举行庆祝活动。", "en": "The Chinese have started to hold celebrations on this day as early as 3,000 years ago."}, {"zh": "数百年来，迎春一直是民间的重要习俗。", "en": "For centuries, welcoming spring has been an important folk custom."}, {"zh": "在春暖花开的日子里，人们常常外出游玩，欣赏春天的美景。", "en": "On warm spring days when flowers are in full bloom, people often go out for outings to enjoy the beautiful scenery of spring."}], "notes": "全篇一般现在时（个别句用现在完成时）。统一译法：立春=Lichun (Start of Spring)；中国农历=the Chinese lunar calendar；一年之计在于春=意译加引号；迎春=welcoming spring。重点句式：After Lichun 状语；As people often say 引述；lay the foundation for…；as early as…；For centuries 时长标记；when…状语。易错：marks 单三；比较级；everything 谓语单数；often 在 go 前；scenery 不可数。", "year": 2022}, {"id": "2022-12-3", "label": "2022年12月第3套", "topic": "介绍中国节气冬至的客观说明文", "sentences": [{"zh": "冬至(Winter Solstice)是全年白昼最短、黑夜最长的一天，标志着一年中最寒冷时节的开始。", "en": "The Winter Solstice is the day on which daytime is the shortest and night is the longest in the whole year, marking the beginning of the coldest period of the year."}, {"zh": "冬至过后，气温越来越低，人们的户外活动逐渐减少。", "en": "After the Winter Solstice, the temperature drops lower and lower, and people's outdoor activities gradually decrease."}, {"zh": "农民地里活儿不多，主要忙于灌溉系统的维护和农作物的防冻，同时为来年春天播种做准备。", "en": "Since there is not much work to do in the fields, farmers are mainly busy with maintaining the irrigation system and protecting crops from freezing, while preparing for next spring's sowing."}, {"zh": "中国人历来很重视冬至，许多地方都把冬至当作一个节日，庆祝方式各地不尽相同。", "en": "Chinese people have always attached great importance to the Winter Solstice and regard it as a festival in many places, though the ways of celebrating it vary from place to place."}, {"zh": "北方人有冬至吃饺子(jiaozi)的习俗，南方人有冬至吃汤圆(tangyuan)的传统。", "en": "Northerners have the custom of eating jiaozi on the Winter Solstice, while Southerners have the tradition of eating tangyuan on this day."}], "notes": "全篇一般现在时（个别句用现在完成时）。统一译法：冬至=the Winter Solstice；饺子=jiaozi；汤圆=tangyuan；节日=festival。重点句式：on which 从句加 marking 分词；lower and lower；Since 原因状语；be busy with doing；while doing；attach importance to；regard as；have the custom of doing；while 对照。易错：vary from place to place；on the Winter Solstice；南北称谓大写。", "year": 2022}, {"id": "2023-03-1", "label": "2023年3月第1套", "notes": "全篇一般现在时。重点词：自驾游 self-driving tour（全篇统一）、组团旅游 traditional group tour、生活水平 living standards、个性化需求 personalized needs、结伴出游者 travel companion。句式：With…状语前置、can either…or…并列、Unlike…对比前置、and thus 结果状语、be popular among…、while 连接并列；第6句“满足了”的“了”不是过去时。", "sentences": [{"en": "With the improvement of living standards, more and more people are joining self-driving tours.", "zh": "随着生活水平的提高，更多人开始加入到自驾游的行列之中。"}, {"en": "Self-driving tourists can either drive their own cars or borrow or rent cars for their trips.", "zh": "自驾游者既可驾驶自家车也可借车或租车出游。"}, {"en": "The driver may be the car owner or a travel companion.", "zh": "司机可能是车主或结伴出游者。"}, {"en": "Unlike traditional group tours, self-driving tours can better satisfy tourists' personalized needs and thus help them enjoy the travel experience more fully.", "zh": "自驾游与传统的组团旅游不同，它能够更好地满足旅游者的个性化需求，使他们更好地享受旅游的过程。"}, {"en": "Self-driving tours are especially popular among young travelers.", "zh": "自驾游尤其受到年轻出游者的欢迎。"}, {"en": "Young people pursue an independent and free life, while self-driving tours happen to meet this need.", "zh": "年轻人追求独立自由的生活，而自驾游恰好满足了他们的这一需求。"}], "topic": "自驾游的客观介绍", "year": 2023}, {"id": "2023-03-2", "label": "2023年3月第2套", "notes": "全篇一般现在时。重点词：乡村旅游 rural tourism、田园风光 the idyllic scenery of the countryside、农家饭菜 home-cooked farmhouse meals、舒缓压力 relieve stress、收获的喜悦 the joy of harvest。句式：过去分词 attracted by…作状语、help sb do 并列宾补（relieve/relax/improve 平行）、not only…but also…、In fact 承上收尾；第4句 help 后三个动词原形平行。", "sentences": [{"en": "In recent years, an increasing number of urban residents, attracted by the idyllic scenery of the countryside, travel to rural areas on holidays.", "zh": "近年来,越来越多的城市居民为农村的田园风光所吸引，利用节假日到乡村旅游。"}, {"en": "They stay in farmers' homes and taste home-cooked farmhouse meals with local flavors.", "zh": "他们住在农民家中,品尝具有当地风味的农家饭菜。"}, {"en": "Some tourists also take part in activities such as picking fruits, experiencing the joy of harvest firsthand.", "zh": "有些游客还参与采摘瓜果等活动,亲身感受收获的喜悦。"}, {"en": "Rural tourism can effectively help tourists relieve stress, relax themselves, and improve their physical and mental health.", "zh": "乡村旅游能够有效地帮助游客舒缓压力,放松心情,增进身心健康。"}, {"en": "In fact, this form of tourism not only benefits urban tourists but also increases farmers' income and promotes the development of the rural economy.", "zh": "实际上,这种旅游形式不仅能使城市游客受益,同时也能增加农民的收入,促进农村经济发展。"}], "topic": "乡村旅游现象的客观介绍", "year": 2023}, {"id": "2023-03-3", "label": "2023年3月第3套", "notes": "全篇一般现在时，第1句“近年来”可用现在完成时 have become fond of。重点词：自助旅游 self-guided travel、自助旅游者 self-guided travelers、徒步 on foot、骑自行车 by bike、突发事件 emergencies。句式：choose to do、on foot/by bike 方式状语、but 转折并列、While…ing 伴随状语、courage/ability to do；第5句“增强了”的“了”不是过去时。", "sentences": [{"en": "In recent years, more and more young people have become fond of various forms of self-guided travel.", "zh": "近年来,越来越多的年轻人喜爱各种形式的自助旅游。"}, {"en": "Many self-guided travelers choose to travel on foot or by bike.", "zh": "许多自助旅游者选择徒步或骑自行车出游。"}, {"en": "They design their own routes and bring their own tents, cooking utensils and other daily necessities.", "zh": "他们自己设计路线,自带帐篷、厨具以及其他必备的生活用品。"}, {"en": "During their trips, self-guided travelers often discover some beautiful new scenic spots, but they sometimes encounter unexpected difficulties or emergencies.", "zh": "在旅途中,自助旅游者经常能够发现一些新的美丽景点,但有时也会遇见意想不到的困难或突发事件。"}, {"en": "While embracing nature and enjoying the beautiful scenery during their trips, travelers also build up their courage to overcome difficulties and their ability to survive in the wild.", "zh": "游客在旅行中拥抱自然、欣赏美景,同时也增强了自己克服困难的勇气和野外生存的能力。"}], "topic": "客观介绍年轻人自助旅游的现象", "year": 2023}, {"id": "2023-06-1", "label": "2023年6月第1套", "notes": "全篇一般现在时，第3句用现在完成进行时 have been exploring。重点词：终身教育 lifelong education、继续教育 continuing education、高校 universities、用人单位 employers、中国国情 China's national conditions。句式：attach importance to、动名词作主语、As 引导状语＋分词伴随、by doing 方式状语、so as to 目的状语、Therefore 显因果；术语全篇统一。", "sentences": [{"en": "China attaches increasing importance to lifelong education, and developing continuing education is an effective way to build a lifelong education system.", "zh": "中国越来越重视终身教育,发展继续教育是构建终身教育体系的有效途径。"}, {"en": "As a base for cultivating talent, universities, possessing advanced teaching philosophies and superior teaching resources, should be the main providers of continuing education.", "zh": "高校作为人才培养的基地, 拥有先进的教学理念和优越的教学资源, 理应成为继续教育的办学主体。"}, {"en": "Therefore, in recent years, many universities have been exploring a new path of continuing education that suits China's national conditions by adapting to social needs and strengthening communication with employers, so as to enable continuing education to play a greater role in the national development strategy.", "zh": "因此，近年来许多高校适应社会需求, 加强与用人单位沟通, 努力探索一条符合中国国情的继续教育发展新路, 以使继续教育在国家发展战略中发挥更大的作用。"}], "topic": "中国终身教育与高校继续教育现状介绍", "year": 2023}, {"id": "2023-06-2", "label": "2023年6月第2套", "notes": "全篇一般现在时，“已经/已”处用现在完成时。重点词：改革开放 reform and opening-up、高等教育 higher education（不可数）、高校 colleges and universities。句式：Since…时间状语前置、With…伴随、现在分词 ranking/creating 降级、数字 47 million、The total number 主谓一致；第4句首补 Meanwhile 显并进。", "sentences": [{"en": "Since the reform and opening-up over 40 years ago, the Chinese government has attached increasing importance to higher education, which has now entered a stage of steady development.", "zh": "改革开放40多年以来，中国政府对高等教育越来越重视，高等教育已经进入稳步发展阶段。"}, {"en": "The total number of college students has reached nearly 47 million, ranking first in the world.", "zh": "高校学生总数已接近4,700万人，位居世界第一。"}, {"en": "With the rapid development of China's economy and the steady improvement of people's living standards, more and more people are eager to receive higher education.", "zh": "随着我国经济的快速发展，人民生活水平不断提高，越来越多的人渴望接受高等教育。"}, {"en": "The number of colleges and universities in China and the disciplines they offer continue to increase, and student enrollment rises year by year while teaching quality is constantly improving, creating opportunities for more young people to receive higher education.", "zh": "我国高校的数量和学科专业持续增加，招生人数逐年上升，教学质量也在不断改进，为更多年轻人创造了接受高等教育的机会。"}], "topic": "改革开放后中国高等教育发展现状介绍", "year": 2023}, {"id": "2023-06-3", "label": "2023年6月第3套", "notes": "全篇一般现在时，“自……以来/从……开始”用现在完成时。重点词：义务教育 compulsory education、《义务教育法》the Compulsory Education Law、小学 primary school、初中 junior high school。句式：现在完成进行时 has been promoting、补主语 China has achieved、so that 目的状语、at the age of six、With…伴随、have access to；时间线索 Since 1986→Today→Since 2008 串联。", "sentences": [{"en": "The Chinese government has been vigorously promoting compulsory education so that every child can have access to education.", "zh": "中国政府一直大力推行义务教育(compulsory education) ,以使每个儿童都享有受教育的机会。"}, {"en": "Since the Compulsory Education Law came into effect in 1986, China has, through unremitting efforts, achieved the goal of making compulsory education available nationwide.", "zh": "自1986年《义务教育法》生效以来，经过不懈努力，实现了在全国推行义务教育的目标。"}, {"en": "Today in China, children start primary school at the age of six and receive a total of nine years of compulsory education from primary school to junior high school.", "zh": "如今，在中国, 儿童年满六周岁开始上小学, 从小学到初中一共接受九年义务教育。"}, {"en": "Since the autumn semester of 2008, students in the compulsory education stage have no longer had to pay tuition fees.", "zh": "从2008年秋季学期开始, 义务教育阶段学生无须缴纳学费。"}, {"en": "With the implementation of a series of educational reform measures, the quality of compulsory education in China has also improved significantly.", "zh": "随着一系列教育改革举措的实施, 中国义务教育的质量也有显著提高。"}], "topic": "客观介绍中国义务教育", "year": 2023}, {"id": "2023-12-1", "label": "2023年12月第1套", "notes": "全篇一般现在时，末句用现在进行时 are taking。重点词：健康饮食 healthy diet、健康中国 a Healthy China、各级政府 governments at all levels。句式：attach great importance to、Through…方式状语、have come to better understand、Eating safely, nutritiously and healthily 并列副词、to do 目的状语、At present 转入现状。", "sentences": [{"en": "The Chinese government attaches great importance to people's healthy diet.", "zh": "中国政府十分重视人民的健康饮食(diet)。"}, {"en": "Through the vigorous promotion of a healthy diet, people have come to better understand the importance of balanced nutrition in improving health.", "zh": "通过大力提倡健康饮食，人们对合理营养增进健康的重要性有了更加深刻的认识。"}, {"en": "Eating safely, nutritiously and healthily is a basic need of the people for a better life, an inevitable requirement for enhancing their sense of happiness, and also offers new opportunities for the development of the food industry.", "zh": "\"吃得安全、吃得营养、吃得健康\"是人民对美好生活的基本需要，是提升人民幸福感的必然要求，也为食品产业的发展提供了新机遇。"}, {"en": "At present, governments at all levels are taking various measures to ensure people's dietary health and promote the building of a Healthy China.", "zh": "目前，各级政府都在采取多种举措确保人民饮食健康，推进健康中国的建设。"}], "topic": "中国政府重视健康饮食的现状介绍", "year": 2023}, {"id": "2023-12-2", "label": "2023年12月第2套", "notes": "全篇一般现在时；第2句讲过去用一般过去时，第1句用现在完成时。重点词：改革开放 the reform and opening-up、饮食 diet、食品 food（不可数）、有机食品 organic food。句式：Since…时间状语、due to 原因状语、not only…but also…、with 复合结构、转被动 is widely welcomed、Therefore 显因果；今昔对照 In the past→Today。", "sentences": [{"en": "Since the reform and opening-up, the diet of Chinese people has undergone significant changes.", "zh": "改革开放以来，中国人的饮食(diet)发生了显著变化。"}, {"en": "In the past, due to the backward economy, food was limited in variety and insufficient in quantity, so people were content with merely having enough to eat.", "zh": "过去由于经济落后，食品种类有限、数量不足 ，人们仅仅满足于吃得饱。"}, {"en": "Today, with China's economy developing rapidly, food is not only more abundant and diverse but also greatly improved in quality.", "zh": "如今中国经济快速发展，食品不仅更加丰富多样，质量也大幅提高。"}, {"en": "As living standards keep rising, people have increasingly higher demands for their diet and pay more attention to eating in a nutritious and healthy way.", "zh": "随着生活水平不断提升，人们对饮食的要求越来越高，更加注重吃得营养健康。"}, {"en": "Therefore, the low-fat, low-sugar and organic food launched on the market today is widely welcomed by people.", "zh": "因此，目前市场上推出的低脂、低糖、有机食品受到人们的普遍欢迎。"}], "topic": "改革开放后中国人饮食变化", "year": 2023}, {"id": "2023-12-3", "label": "2023年12月第3套", "notes": "全篇一般现在时，第1句“以来……不断提高”用现在完成时。重点词：改革开放 the reform and opening-up、物流业 the logistics industry、饮食 diet。句式：which 非限制性定语从句、are no longer content with…; instead…转折、no longer being limited to 分词状语、使役句 makes it easy for sb to do、Undoubtedly 收束结论。", "sentences": [{"en": "Since the reform and opening-up, the living standards of the Chinese people have improved steadily, which is fully reflected in the changes in people's diet.", "zh": "改革开放以来，中国人民生活水平不断提高，这在人们的饮食 (diet)变化上得到充分体现 。"}, {"en": "Today, people are no longer content with simply having enough to eat; instead, they pursue food that is safer, more nutritious and healthier. Food is also becoming more and more diverse, no longer being limited to local agricultural products.", "zh": "如今，人们不再满足于吃得饱，而是追求吃得更加安全、更加营养、更加健康，食物也愈来愈丰富多样，不再限于本地的农产品。"}, {"en": "The development of the logistics industry makes it easy for people to taste specialties from all over the country.", "zh": "物流业 (logistics industry)的发展使人们很容易品尝到全国各地的特产。"}, {"en": "Undoubtedly, the improvement in food quality and diet structure provides a strong guarantee for improving people's health.", "zh": "毫无疑问，食品质量与饮食结构的改善为增进人们健康提供了有力的保障。"}], "topic": "改革开放以来饮食变化的社会介绍", "year": 2023}, {"id": "2024-06-1", "label": "2024年6月第1套", "topic": "客观介绍中国传统住宅四合院", "sentences": [{"zh": "四合院(siheyuan)是中国一种传统的住宅建筑，其特点是房屋建造在一个院子的四周，将院子合围在中间。", "en": "The siheyuan is a traditional Chinese residential building, characterized by houses built on the four sides of a courtyard, enclosing it in the middle."}, {"zh": "四合院通常冬暖夏凉，环境舒适，尤其适合大家庭居住。", "en": "It is usually warm in winter and cool in summer, providing a comfortable environment that is especially suitable for large families."}, {"zh": "四合院在中国各地有多种类型，其中以北京的四合院最为典型。", "en": "There are various types of siheyuan across China, among which the ones in Beijing are the most typical."}, {"zh": "如今，随着现代城市的发展，传统的四合院已逐渐减少，但因其独特的建筑风格，四合院对中国文化的传承和中国历史的研究具有重要意义。", "en": "Nowadays, with the development of modern cities, traditional siheyuan have gradually decreased; however, owing to their unique architectural style, they remain of great significance to the inheritance of Chinese culture and the study of Chinese history."}], "notes": "客观介绍中国传统住宅四合院；全篇一般现在时，末句“已逐渐减少”用现在完成时 have gradually decreased。专名统一译法：四合院 siheyuan（首次出现可加同位语解释），北京 Beijing，大家庭 large families。句式：第1句 characterized by 收编“其特点是”，enclosing 接“合围在中间”；第2句 It 承接主语，providing…作结果状语；第3句 There be 结构 + among which 非限定性定语从句，the most typical；第4句 Nowadays 开头，with…作伴随状语，分号 + however 显化转折，owing to 表原因，remain of great significance to 表“具有重要意义”。", "year": 2024}, {"id": "2024-06-2", "label": "2024年6月第2套", "notes": "全篇一般现在时为基调，起源与古人做法用一般过去时。专名统一译法：农历 the lunar calendar、春节 the Spring Festival、中秋节 the Mid-Autumn Festival。重点句式：play an important role in；be based on；make the most effective use of；thereby improving（分词作结果状语）；be formulated based on（被动分词降级）。衔接：第2句用 it 承接首句，第3句可补 in the past 显时间层次，末句 today 与过去呼应收束。", "sentences": [{"en": "The lunar calendar originated in China thousands of years ago and was formulated based on the movements of the sun and the moon.", "zh": "农历 (the lunar calendar) 起源于数千年前的中国，根据太阳和月亮的运行规律制定。"}, {"en": "For a long time, the lunar calendar has played an important role in agricultural production and people's daily life.", "zh": "长期以来，农历在农业生产和人们日常生活中发挥着重要作用。"}, {"en": "Ancient people recorded dates and arranged farm work according to the lunar calendar, in order to make the most effective use of natural resources and climatic conditions, thereby improving the yield and quality of crops.", "zh": "古人依据农历记录日期、安排农活，以便最有效地利用自然资源和气候条件，提高农作物的产量和质量。"}, {"en": "The dates of China's traditional festivals, such as the Spring Festival and the Mid-Autumn Festival, are based on the lunar calendar.", "zh": "中国的春节、中秋节等传统节日的日期都基于农历。"}, {"en": "The lunar calendar is an important part of traditional Chinese culture and is still widely used today.", "zh": "农历是中国传统文化的重要组成部分，当今依然广为使用。"}], "topic": "客观介绍农历及其作用", "year": 2024}, {"id": "2024-06-3", "label": "2024年6月第3套", "notes": "全篇一般现在时为基调，“幸福已到、好运已到”用现在完成时 have arrived。专名统一译法：福字 the character \"Fu\"、春节 the Spring Festival、吉祥 auspicious。重点句式：one of the most + 最高级 + 复数名词；动名词作主语 Pasting... is...；To...表目的、expressing...分词作伴随；upside down 倒过来贴。衔接：第5句用 also 标出“另一种贴法”。", "sentences": [{"en": "The Chinese character \"Fu\" means happiness and good fortune, and is one of the most commonly used auspicious symbols in traditional Chinese culture.", "zh": "汉语中的\"福\"字(the character fu)表示幸福和好运,是中国传统文化中最常用的吉祥(auspicious)符号之一。"}, {"en": "People usually write a large character \"Fu\" on red paper, expressing their wish for family happiness, social stability and national prosperity.", "zh": "人们通常将一个大大的福字写在红纸上,寓意期盼家庭幸福、社会安定、国家昌盛。"}, {"en": "Pasting the character \"Fu\" during the Spring Festival is a long-standing folk custom.", "zh": "春节贴福字是民间由来已久的习俗。"}, {"en": "To celebrate the Spring Festival, every household pastes the character \"Fu\" on doors or walls, expressing their longing for a happy life and their expectation for a better future.", "zh": "为了欢庆春节,家家户户都会将福字贴在门上或墙上,表达对幸福生活的向往、对美好未来的期待。"}, {"en": "Sometimes people also paste the character \"Fu\" upside down to indicate that happiness and good fortune have arrived.", "zh": "人们有时还将福字倒过来贴，表示幸福已到、好运已到。"}], "topic": "介绍“福”字的吉祥寓意与春节贴福习俗", "year": 2024}, {"id": "2024-12-1", "label": "2024年12月第1套", "notes": "全篇一般现在时为基调，取得成效、做出贡献用现在完成时，第4句用现在进行时 are becoming。重点词：环境保护 environmental protection、清洁能源 clean energy、共享单车 shared bikes、垃圾分类 garbage classification。重点句式：attach great importance to；make progress in doing；take a series of measures, including + 动名词并列；make contributions to。", "sentences": [{"en": "The Chinese government attaches great importance to environmental protection.", "zh": "中国政府十分重视环境保护。"}, {"en": "In recent years, China has made remarkable progress in reducing air, water and soil pollution.", "zh": "近年来,中国在减少空气、水和土壤污染上取得了显著成效。"}, {"en": "To continuously improve people's living environment, China has taken a series of effective measures, including developing clean energy, improving public transportation, promoting shared bikes and implementing garbage classification.", "zh": "为了不断改善人们的生活环境,中国采取了一系列有效措施,包括大力发展清洁能源,改善公共交通,推广共享单车,实施垃圾分类。"}, {"en": "Thanks to these measures, both urban and rural areas in China are becoming greener and more beautiful.", "zh": "通过这些措施,中国的城市和农村正在绿起来、美起来。"}, {"en": "China also actively participates in international cooperation, making important contributions to global environmental protection.", "zh": "中国还积极参与国际合作,为全球环境保护做出了重要贡献。"}], "topic": "中国环保举措与成效的客观介绍", "year": 2024}, {"id": "2024-12-2", "label": "2024年12月第2套", "notes": "全篇一般现在时为基调，已完成动作可用现在完成时。专名统一译法：新能源汽车 new energy vehicles、新能源汽车产业 China's new energy vehicle industry、中国政府 the Chinese government。重点句式：account for（占份额）；hit new highs；encourage... to do；by + doing 表方式；not only... but also... 递进并列；数字：近千万辆 nearly 10 million units。", "sentences": [{"en": "In recent years, China's new energy vehicle industry has developed rapidly.", "zh": "近年来，中国新能源汽车产业发展迅速。"}, {"en": "At present, China's annual output of new energy vehicles has reached nearly 10 million units, accounting for over 60% of the global market share, while its exports keep hitting new highs.", "zh": "目前，中国新能源汽车年产量已高达近千万辆，占全球市场份额超过 60%，出口量不断创出新高。"}, {"en": "The Chinese government, by increasing funding and providing policy guidance, encourages new energy vehicle enterprises to make technological innovations and continuously enhance the market competitiveness of their products.", "zh": "中国政府通过加大资金投入和政策引导，鼓励新能源汽车企业进行技术创新，不断提高产品在市场上的竞争力。"}, {"en": "The development of China's new energy vehicle industry has not only powerfully boosted domestic economic growth, but also made positive contributions to the global use of new energy and environmental protection.", "zh": "中国新能源汽车产业的发展不仅有力推动了国内经济发展，也为全球新能源利用和环境保护做出了积极贡献。"}], "topic": "客观介绍中国新能源汽车产业的现状与成就", "year": 2024}, {"id": "2024-12-3", "label": "2024年12月第3套", "notes": "全篇一般现在时为基调，“2014年开放启用”用过去时 opened，“这将”表未来预期用 will。专名统一译法：敦煌莫高窟 the Mogao Grottoes、数字展示中心 the Digital Exhibition Center、世界文化遗产 this World Cultural Heritage site。重点句式：which 非限制性定语从句；enabling 分词作结果状语；reduce/shorten/lessen 并列；so that 目的状语；can be properly protected and used。衔接：the center、This 承接上句。", "sentences": [{"en": "The Mogao Grottoes Digital Exhibition Center, which opened in 2014, is an important part of the project for the protection and utilization of the Mogao Grottoes.", "zh": "敦煌莫高窟 (Mogao Grottoes) 数字展示中心于2014年开放启用, 是莫高窟保护利用工程的重要组成部分。"}, {"en": "The center adopts digital technology and multimedia means, enabling visitors to learn about the history and culture of the Mogao Grottoes and appreciate its artistic classics before they enter the caves.", "zh": "展示中心采用数字技术和多媒体展示手段, 使游客进入洞窟参观之前就能了解莫高窟的历史文化, 鉴赏莫高窟的艺术经典。"}, {"en": "This will reduce the number of open caves, shorten the time visitors stay inside, and lessen the impact of visits on the Mogao Grottoes, so that this World Cultural Heritage site can be properly protected and used over the long term.", "zh": "这将减少开放洞窟的数量, 缩短游客在洞窟内的逗留时间, 减轻参观对莫高窟造成的影响, 以使这一世界文化遗产得到妥善保护、长久利用。"}], "topic": "客观介绍敦煌莫高窟数字展示中心", "year": 2024}, {"id": "2025-06-1", "label": "2025年6月第1套", "notes": "一般现在时为基调，已完成动作用过去时/现在完成时；专名：袁隆平 Yuan Longping、杂交水稻 hybrid rice、超级杂交水稻 super hybrid rice、杂交水稻之父 the father of hybrid rice、粮食安全 food security（非 food safety）；要点：誉称降为 known as 定语、克服困难降为 overcoming 状语；抗旱抗病 resistance to drought and disease；产量提高 increase by 20 to 30 percent；句间用 This technology 承接。", "sentences": [{"en": "Yuan Longping, known as the father of hybrid rice, and his research team, overcoming numerous difficulties, developed a super hybrid rice.", "zh": "被誉为\"杂交水稻(hybrid rice)之父\"的袁隆平和他的科研团队克服重重困难,研发出了一种超级杂交水稻。"}, {"en": "This technology has achieved great success recognized worldwide.", "zh": "这项技术获得了举世公认的巨大成功。"}, {"en": "With the application of this technology, the rice has stronger resistance to drought and disease and can adapt to different climates and soil conditions, and its yield can increase by 20 to 30 percent.", "zh": "通过这项技术的应用,水稻抗旱抗病能力更强,能适应不同的气候和土壤条件,产量可提高20-30%。"}, {"en": "Super hybrid rice is rich in nutrition and tastes better.", "zh": "超级杂交水稻营养丰富,口感更佳。"}, {"en": "Currently, this technology has been widely applied in many countries, making great contributions to global food security.", "zh": "目前,这项技术已经在许多国家得到广泛应用,为全球粮食安全做出了重大贡献。"}], "topic": "袁隆平与超级杂交水稻", "year": 2025}, {"id": "2025-06-2", "label": "2025年6月第2套", "notes": "一般现在时为主，正在进行处用进行时，已完成用完成时；专名：东北地区 Northeast China、冰雪大世界 the Ice and Snow World、冰雪资源 ice and snow resources；要点：近年来 in recent years；大力 vigorously；利用 by making full use of；同时 while；曾令人畏惧 once-feared；做出贡献 make a contribution to；例证关系用 For example、今昔对比用 Today 显化。", "sentences": [{"en": "In recent years, Northeast China has been vigorously developing its ice and snow resources.", "zh": "近年来,中国东北地区正在大力开发冰雪资源。"}, {"en": "For example, Harbin has built the Ice and Snow World with strong local characteristics by making full use of its rich ice and snow resources, allowing tourists to experience the unique local folk culture while enjoying the beauty of ice and snow.", "zh": "例如,哈尔滨利用丰富的冰雪资源打造了极具地方特色的\"冰雪大世界\",让游客在欣赏冰雪之美的同时也能体验当地独特的民俗文化。"}, {"en": "Today, the once-feared land of ice and snow is attracting tourists from all directions and has become a popular tourist destination.", "zh": "如今,曾令人畏惧的冰天雪地正吸引着四面八方的游客,成为深受欢迎的旅游胜地。"}, {"en": "Ice and snow tourism is making an increasingly great contribution to the local economic development.", "zh": "冰雪旅游业正为当地的经济发展做出越来越大的贡献。"}], "topic": "东北冰雪旅游开发", "year": 2025}, {"id": "2025-06-3", "label": "2025年6月第3套", "notes": "一般现在时为基调；专名：15分钟便民生活圈 15-minute convenient living circle(s)（题目已给，照搬；15-minute 连字符单数）、公共服务 public services、社区食堂 community canteens；要点：越来越多 an increasing number of；享受到服务 have access to；步行15分钟 within a 15-minute walk；列举句用 There be + such as；满足需求 meet the needs；句间用 these living circles 承接。", "sentences": [{"en": "In recent years, an increasing number of Chinese cities have been striving to build \"15-minute convenient living circles\".", "zh": "近年来,中国越来越多的城市着力打造\"15分钟便民生活圈(convenient living circles)\"。"}, {"en": "Community residents can have access to the public services they need in daily life within just a 15-minute walk.", "zh": "社区居民步行15分钟就能享受到日常所需的公共服务。"}, {"en": "Within such a living circle, there are facilities such as convenience stores, parks, fitness areas, libraries, schools, community canteens and clinics.", "zh": "生活圈内建有便利店、公园、健身场地、图书馆、学校、社区食堂、诊所等。"}, {"en": "The establishment of these living circles can provide residents with a more convenient, comfortable, friendly and pleasant living environment, thus better meeting the diverse daily-life service needs of urban residents and improving their quality of life and sense of happiness.", "zh": "生活圈的建立能够为居民提供更加便利、舒适、友好、愉悦的生活环境,更好地满足城市居民多元化的日常生活服务需求,提升居民的生活品质和幸福感。"}], "topic": "中国城市15分钟便民生活圈", "year": 2025}, {"id": "2025-12-1", "label": "2025年12月第1套", "notes": "一般现在时为基调，已完成动作用现在完成时，具体时间点用过去时；专名：民营经济 private economy、民营企业 private enterprises、高质量发展 high-quality development；要点：高度重视 attach great importance to；出台政策 introduce a series of policies to support…；占总量 accounting for 92.3%；不仅……也…… not only… but also…；研发投入 R&D investment；5700万 57 million。", "sentences": [{"en": "In recent years, the Chinese government has attached great importance to the development of the private economy and introduced a series of policies to support private enterprises.", "zh": "近年来，中国政府高度重视民营经济(private economy)的发展，出台了一系列政策支持民营企业。"}, {"en": "By the end of March 2025, the number of private enterprises nationwide exceeded 57 million, accounting for 92.3% of the total number of enterprises.", "zh": "截至 2025 年 3 月底，全国民营企业数量超过 5700 万家，占企业总量的 92.3%。"}, {"en": "Private enterprises are not only growing steadily in number but also improving in quality and structure.", "zh": "民营企业不仅数量稳步增长，质量和结构也在不断提升。"}, {"en": "Private enterprises are increasing their R&D investment and developing rapidly in fields such as next-generation information technology and artificial intelligence.", "zh": "民营企业的研发投入不断增加，在新一代信息技术、人工智能等领域发展迅速。"}, {"en": "The enhancement of private enterprises' core competitiveness provides strong support for the high-quality development of China's economy.", "zh": "民营企业核心竞争力的增强为中国经济的高质量发展提供了有力支撑。"}], "topic": "中国民营经济发展现状", "year": 2025}, {"id": "2025-12-2", "label": "2025年12月第2套", "notes": "一般现在时为基调，已成为处用现在完成时；专名：城市漫步 city walk、漫步者 city walkers；要点：悄然兴起 quietly emerged；不追求 does not seek to；尽可能多 as many…as possible；随意行走 wander randomly；按照主题路线 along themed routes；地道小吃 authentic snacks；了解 learn about；能让…了解 enable sb to gain a deeper understanding of。", "sentences": [{"en": "In recent years, city walk has quietly emerged among young people in China and has become a new travel trend.", "zh": "近年来，\"城市漫步(city walk)\"在中国的年轻人中悄然兴起，已成为一种旅游新潮流。"}, {"en": "Unlike traditional travel, city walk does not seek to visit as many attractions as possible in a short time.", "zh": "与传统旅游不同，城市漫步不追求在短时间内游览尽可能多的景点。"}, {"en": "Instead, city walkers wander randomly or stroll along themed routes through the streets and alleys of the city.", "zh": "而是随意行走或按照主题路线漫步在城市的大街小巷。"}, {"en": "They taste authentic snacks, admire distinctive buildings, and learn about local ways of life.", "zh": "漫步者品尝地道小吃，欣赏特色建筑，了解当地生活方式。"}, {"en": "They also record the city's scenery and people with cameras or mobile phones.", "zh": "他们还用相机或手机记录城市的风景和人物。"}, {"en": "This travel style enables city walkers to gain a deeper understanding of the city's history and culture.", "zh": "这种旅游方式能让城市漫步者更深入了解城市的历史与文化。"}], "topic": "城市漫步这一旅游新潮流", "year": 2025}, {"id": "2025-12-3", "label": "2025年12月第3套", "notes": "一般现在时为基调，已完成成效用现在完成时；专名：绿色经济 the green economy、绿水青山 lucid waters and lush mountains（题目已给，照搬）、可持续发展 sustainable development；要点：重视 attach importance to；通过…措施 Through a series of measures such as…；显著改善 improved remarkably；深入人心 take deep root；不仅……也…… not only…but also…；句间用 Through、Today 衔接。", "sentences": [{"en": "The Chinese government attaches great importance to the development of the green economy.", "zh": "中国政府十分重视绿色经济的发展。"}, {"en": "Through a series of measures such as strengthening forest resource protection and intensifying pollution control, the ecological environment in many regions has improved remarkably.", "zh": "通过加强森林资源保护、加大污染治理力度等一系列措施，许多地区的生态环境得到了显著改善。"}, {"en": "Lucid waters and lush mountains have promoted the development of local industries such as tourism and health care, generating considerable economic benefits.", "zh": "绿水青山 (lucid waters and lush mountains) 促进了当地的旅游、健康等产业的发展，创造了可观的经济效益。"}, {"en": "Today, the idea that ecology and human society can coexist in harmony has taken deep root in China.", "zh": "如今，生态环境与人类社会和谐共存的观念在中国已深入人心。"}, {"en": "The promotion of the green economy not only contributes to China's sustainable development but also provides valuable experience for global environmental protection.", "zh": "绿色经济的推进不仅能为中国可持续发展做出贡献，也为全球环境保护提供了宝贵经验。"}], "topic": "中国发展绿色经济", "year": 2025}, {"id": "2026-06-1", "label": "2026年6月第1套", "notes": "重点词汇：教师节=Teachers' Day（复数所有格，Day大写）；尊师=respecting teachers；中华民族=the Chinese nation。句式要点：全篇一般现在时为基调；第1句There be句型引出谚语；第2句not only…but also…并列；第3句which非限定定语从句承接评论，在古代用一般过去时；第4句To carry forward…不定式表目的，从1985年开始用现在完成时；第5句On this day回指教师节；第6句动名词短语作主语视为单数，and it has been carried forward被动承接。", "sentences": [{"en": "There is an old Chinese saying: \"A teacher for a day is a father for a lifetime.\"", "zh": "中国有句老话：\"一日为师，终身为父\"。"}, {"en": "In the eyes of Chinese people, teachers not only impart knowledge, but also teach students how to be a good person.", "zh": "在中国人的观念里，老师不仅传授知识，更教给学生做人的道理。"}, {"en": "In ancient times, students had to hold a grand ceremony when they met their teacher for the first time, which was enough to show the high status of teachers.", "zh": "在古代，学生初次见老师时要举行隆重的仪式，足见老师地位之高。"}, {"en": "To carry forward the fine tradition of respecting teachers, China has observed September 10 of each year as Teachers' Day since 1985.", "zh": "为弘扬尊师的优良传统，中国从1985年开始将每年的9月10日定为教师节。"}, {"en": "On this day, students express their respect for teachers in various ways.", "zh": "在这一天，学生以各种方式表达对老师的敬意。"}, {"en": "Respecting teachers is a traditional virtue of the Chinese nation, and it has been carried forward in today's society.", "zh": "尊师是中华民族的传统美德，在当今社会得到了发扬光大。"}], "topic": "中国尊师传统与教师节由来", "year": 2026}, {"id": "2026-06-2", "label": "2026年6月第2套", "notes": "重点词汇：餐桌礼仪=dining etiquette；中华传统文化=traditional Chinese culture；待客之道=the way of treating guests。句式要点：全篇一般现在时，“会”表惯例不用will；第1句embodying现在分词作伴随补充；第2句To entertain guests目的状语前置、according to…依据后置；第3句冒号引出分说、while对照，倒装句先还原再译；第4句from time to time；第5句已延续数千年用现在完成时，play an important role in doing固定句型。", "sentences": [{"en": "Dining etiquette is an important part of traditional Chinese culture, embodying the warm and courteous way of treating guests.", "zh": "餐桌礼仪 (dining etiquette) 是中华传统文化的重要组成部分，蕴含着热情有礼的待客之道。"}, {"en": "To entertain guests, the host prepares rich and exquisite dishes according to their tastes and preferences.", "zh": "为了招待客人，主人会根据客人的口味和喜好准备丰富精致的菜肴。"}, {"en": "The seating arrangement is very particular: the host sits in the seat directly facing the gate, while the most important guest sits beside the host.", "zh": "就餐座位的安排非常讲究，主人坐在正对大门的位置，在主人身边就座的是最重要的客人。"}, {"en": "During the meal, the host refills wine and adds more dishes for the guests from time to time.", "zh": "进餐时，主人会不时地为客人添酒加菜。"}, {"en": "This unique dining etiquette has lasted for thousands of years and has played an important role in promoting harmonious interpersonal relationships.", "zh": "这种独特的餐桌礼仪已延续了数千年，对促进和谐的人际交往起到了重要的作用。"}], "topic": "中华餐桌礼仪", "year": 2026}, {"id": "2026-06-3", "label": "2026年6月第3套", "notes": "重点词汇：礼节=etiquette（不可数）；礼尚往来=the tradition of reciprocity；互赠/赠送礼物=exchanging/giving gifts；人际关系=interpersonal relationships、人际交往=interpersonal communication。句式要点：全篇一般现在时；第1句动名词短语作主语视为单数；第2句not only…but also…平行结构；第3句carefully chosen前置、that suits…定语从句后置；第4句when receiving省略状语、so as to表目的。", "sentences": [{"en": "In traditional Chinese culture, exchanging gifts among relatives and close friends is an important form of etiquette in interpersonal communication.", "zh": "在中国传统文化中，亲朋好友之间互赠礼物是人际交往的一种重要礼节 (etiquette) 。"}, {"en": "Giving gifts is not only a material offering, but also an expression of affection, and an important bond that maintains interpersonal relationships.", "zh": "赠送礼物不仅是物质的馈赠，更是情感的表达，是维系人际关系的重要纽带。"}, {"en": "A carefully chosen gift that suits the recipient's preferences can often deepen mutual affection.", "zh": "一份精心挑选、符合接受者喜好的礼物，往往能加深彼此的感情。"}, {"en": "Chinese people follow the tradition of reciprocity (mutually exchanging courtesies): when receiving gifts, they express their gratitude and return gifts at an appropriate time, so as to enhance their harmonious relationship.", "zh": "中国人遵循\"礼尚往来\" (mutually exchanging courtesies)的传统，接受礼物时会表达谢意，并适时回赠礼物，以增进彼此的融洽关系。"}], "topic": "中国传统赠礼文化", "year": 2026}];
+var QUIZ = {"2022-06-1": [{"q": "本篇把“步那个农夫的后尘”意译为哪一句？", "opts": ["follow in the farmer's footsteps", "walk in the farmer's dust", "step after the farmer", "follow the farmer's back"], "a": 0, "why": "本篇 notes 的统一译法：“步……后尘”= follow in the farmer's footsteps，属意译，不要逐字硬译。"}, {"q": "“今天可真把我累坏了！”最贴切的译文是？", "opts": ["I am very tired today.", "I made myself tired today.", "I'm really worn out today.", "Today tired me badly."], "a": 2, "why": "notes 易错点：“累坏了”用 worn out 表达，比 tired 程度更准。"}, {"q": "末句“这样的家长是否该对这个问题有所醒悟，让孩子自然成长呢？”正确的译文是？", "opts": ["Shouldn't such parents wake up to this problem and let their children to grow naturally?", "Shouldn't such parents wake up to this problem and let their children grow naturally?", "Should such parents wake up this problem and let their children grow naturally?", "Don't such parents wake up to this problem and let their children grow naturally?"], "a": 1, "why": "notes 重点句式：Shouldn't… 反问句式；wake up to 是固定搭配；let sb do 中 do 前不加 to。"}], "2022-06-2": [{"q": "“一群羊”的正确译法是？", "opts": ["a flock of sheeps", "a flock of sheep", "many sheeps", "a sheep of flock"], "a": 1, "why": "notes 易错点：sheep 单复数同形，没有 sheeps；“一群”用 a flock of。"}, {"q": "第 4 句“夜间有狼钻进羊圈叼走了羊”中，译文为什么用过去完成时 had got into / had carried off？", "opts": ["因为事情发生在夜间", "因为狼的动作发生在“发现少了一只羊”这个过去时间点之前，是“过去的过去”", "因为故事发生在古代", "因为主句用了过去时所以从句随便用"], "a": 1, "why": "notes 明确点出：had got into / had carried off 表“过去的过去”，即在“早上发现”之前已经发生。"}, {"q": "末句前“他的羊再也没有被狼叼走”正确的译文是？", "opts": ["His sheep were never carried off by wolves again.", "His sheep was never carried off by wolves again.", "His sheep were never carry off by wolves again.", "His sheep never carried off by wolves again."], "a": 0, "why": "notes 重点句式：被动语态 were carried off；主语 sheep 在此为复数，be 动词用 were，且 carried 是过去分词。"}], "2022-06-3": [{"q": "“他不再耕作”正确的译法是？", "opts": ["He stopped to farm.", "He gave up farming.", "He stopped farm.", "He no longer to farm."], "a": 1, "why": "notes 易错点：stop doing（不再做）≠ stop to do（停下来去做）；本篇统一用 gave up farming。"}, {"q": "“如果总是这样该多好啊！”正确的译文是？", "opts": ["How wonderful it is if this can happen every day!", "How wonderful it will be if this happens every day!", "How wonderful it would be if this could happen every day!", "What wonderful if this could happen every day!"], "a": 2, "why": "notes 重点句式：How wonderful it would be if… 是虚拟语气感叹句，与现在事实相反的假设用 would be / could。"}, {"q": "按本篇统一译法，撞死在树上的“兔子”译为？", "opts": ["rabbit", "bunny", "deer", "hare"], "a": 3, "why": "notes 统一译法：本篇“兔子”统一译为 hare（野兔），全篇保持一致。"}], "2022-09-1": [{"q": "“大量研究表明……”中，A large number of studies 后面谓语动词应用？", "opts": ["shows", "show", "is showing", "has shown"], "a": 1, "why": "notes 易错点：A large number of studies 的中心词是 studies（复数），谓语用 show。"}, {"q": "“身心健康”的统一译法是？", "opts": ["body and heart health", "physical and heart health", "physical and mental health", "healthy body and mind"], "a": 2, "why": "notes 统一译法：身心健康 = physical and mental health，全篇保持一致。"}, {"q": "“练太极拳最初是为了自卫”的正确译文是？", "opts": ["Practicing Taijiquan was originally for self-defense.", "Practice Taijiquan was originally for self-defense.", "Practicing Taijiquan are originally for self-defense.", "To practicing Taijiquan was originally for self-defense."], "a": 0, "why": "notes 重点句式：动名词作主语 Practicing Taijiquan；“最初”指过去，用 was originally，主谓一致用单数。"}], "2022-09-2": [{"q": "“压岁钱”的译法是？", "opts": ["pressure money", "year money", "lucky money", "red money"], "a": 2, "why": "原文已给出俗称发压岁钱 (lucky money)，本篇统一用 lucky money，不要按字面硬译。"}, {"q": "“欢度春节时，人们经常互发微信红包表达问候”正确的译文是？", "opts": ["When celebrating the Spring Festival, people often send WeChat red envelopes to express their greetings.", "When celebrating the Spring Festival, people often send WeChat red envelopes to each other to express their greetings.", "When celebrate the Spring Festival, people often send WeChat red envelopes to each other to greet.", "People often send WeChat red envelopes each other when celebrating the Spring Festival."], "a": 1, "why": "notes 易错点：“互发”必须译出 to each other，否则丢了“互相”的意思。"}, {"q": "“红包不仅是给孩子的礼物，而且经常也是给长辈或亲朋好友的礼物”正确的译文是？", "opts": ["Red envelopes is not only a gift for children but also often a gift for the elders, relatives and friends.", "Red envelopes are not only a gift for children, and also often a gift for the elders, relatives and friends.", "Red envelopes are not only a gift for children but also often a gift for the elders, relatives and friends.", "Not only red envelopes are a gift for children but also often a gift for the elders, relatives and friends."], "a": 2, "why": "notes 重点句式：not only…but also… 并列结构；主语 red envelopes 是复数，谓语用 are。"}], "2022-09-3": [{"q": "“戏曲可以追溯到唐朝”中“追溯到”正确的译法是？", "opts": ["dated back to", "dates back to", "is dated back to", "dating back to"], "a": 1, "why": "notes 易错点：date back to 表示“追溯到”要用一般现在时 dates back to，不能写成 dated back。"}, {"q": "“老年人”在本篇译为 the elderly，原因是？", "opts": ["elderly 是名词复数", "the + 形容词可以表示一类人", "elderly 只能指老年人", "这是固定习语没有原因"], "a": 1, "why": "notes 易错点：the elderly 用“the + 形容词”表示“老年人”这一类人。"}, {"q": "第 2 句“中国戏曲吸引观众的一大特色是其独具风格的脸谱”，句子的主干主语是？", "opts": ["Chinese opera", "audiences", "facial painting", "A major feature"], "a": 3, "why": "notes 易错点：主语中心词是 feature（单数），所以谓语用 is；that attracts audiences 是修饰 feature 的定语从句。"}], "2022-12-1": [{"q": "“但此时酷热的天气并未完全结束”正确的译文片段是？", "opts": ["the hot weather has completely ended", "the hot weather has not completely ended", "the hot weather did not completely ends", "the hot weather not has completely ended"], "a": 1, "why": "notes 易错点：has not completely ended 是部分否定，表“并未完全结束”；completely 放在 not 之后。"}, {"q": "“一叶知秋”的译法是？", "opts": ["one leaf knows autumn", "a leaf tells the autumn", "one falling leaf heralds the coming of autumn", "seeing a leaf, know autumn"], "a": 2, "why": "notes 统一译法：一叶知秋 = one falling leaf heralds the coming of autumn，用 herald（预示）意译。"}, {"q": "“在中国农历中，立秋意味着夏天的结束”中“意味着”应用？", "opts": ["mark", "marking", "marks", "marked"], "a": 2, "why": "notes 易错点：主语 the Start of Autumn 是第三人称单数，全篇一般现在时，谓语用 marks。"}], "2022-12-2": [{"q": "“一年之计在于春”本篇的译文是？", "opts": ["One year's plan lies in spring.", "The plan of a year is decided in spring.", "A year's plan depends on spring.", "The whole year's work depends on a good start in spring."], "a": 3, "why": "notes 统一译法：该谚语意译并加引号 —— The whole year's work depends on a good start in spring."}, {"q": "“立春之后……万物开始复苏”中“万物开始复苏”正确的译文是？", "opts": ["everything come back to life", "everything comes back to life", "everything coming back to life", "everything came back to life"], "a": 1, "why": "notes 易错点：everything 视作单数，谓语用单数形式 comes；全篇时态为一般现在时。"}, {"q": "“欣赏春天的美景”中“美景”的正确译法是？", "opts": ["beautiful sceneries", "beautiful scenery", "beautiful scene", "beautiful views of sceneries"], "a": 1, "why": "notes 易错点：scenery 是不可数名词，不能加 s。"}], "2022-12-3": [{"q": "“中国人历来很重视冬至”中“重视”的译法是？", "opts": ["pay great importance to", "attach great importance to", "attach great important to", "put great importance on to"], "a": 1, "why": "notes 重点句式：attach importance to 是固定搭配，importance 是名词，不能写成 important。"}, {"q": "“许多地方都把冬至当作一个节日”中“把……当作”正确的译法是？", "opts": ["regard it like a festival", "think it as a festival", "regard it a festival", "regard it as a festival"], "a": 3, "why": "notes 重点句式：regard…as… 表“把……当作”，as 不能省。"}, {"q": "按本篇原文，北方人冬至有吃什么的习俗？", "opts": ["汤圆 (tangyuan)", "饺子 (jiaozi)", "粽子 (zongzi)", "月饼 (mooncakes)"], "a": 1, "why": "原文第 5 句：北方人有冬至吃饺子 (jiaozi) 的习俗，南方人吃汤圆 (tangyuan)，南北别记反。"}], "2023-03-1": [{"q": "“自驾游”的统一译法是？", "opts": ["self-drive travel", "driving-self tour", "self-driving tour", "auto tour by oneself"], "a": 2, "why": "notes 重点词：自驾游 = self-driving tour，全篇统一，不要每句换说法。"}, {"q": "末句“而自驾游恰好满足了他们的这一需求”中，“满足了”的“了”该如何处理？", "opts": ["用一般过去时 met", "用现在完成时的 have met", "“了”不是过去时，本句用一般现在时 meet", "用将来时 will meet"], "a": 2, "why": "notes 明确提醒：第 6 句“满足了”的“了”不是过去时，全篇一般现在时，译文用 happen to meet。"}, {"q": "“自驾游者既可驾驶自家车也可借车或租车出游”正确的译文是？", "opts": ["Self-driving tourists can either drive their own cars or borrow or rent cars for their trips.", "Self-driving tourists can either drive their own cars and borrow or rent cars for their trips.", "Self-driving tourists can either drive their own cars nor borrow or rent cars for their trips.", "Self-driving tourists either can drive their own cars or borrow or rent cars for their trip."], "a": 0, "why": "notes 句式：can either…or… 并列结构，either/or 后面接平行的动词短语。"}], "2023-03-2": [{"q": "“田园风光”的译法是？", "opts": ["the garden scenery of the countryside", "the idyllic scenery of the countryside", "the beautiful field view", "the pastoral photo of the countryside"], "a": 1, "why": "notes 重点词：田园风光 = the idyllic scenery of the countryside，idyllic 表“田园诗般的”。"}, {"q": "“乡村旅游能够有效地帮助游客舒缓压力、放松心情、增进身心健康”中 help 后面三个动词应使用什么形式？", "opts": ["to relieve, to relax, to improve", "relieving, relaxing, improving", "relieve, relax, improve（动词原形平行）", "relieves, relaxes, improves"], "a": 2, "why": "notes 句式要点：help sb do 结构，第 4 句 help 后三个动词原形平行：relieve / relax / improve。"}, {"q": "末句“这种旅游形式不仅能使城市游客受益，同时也能增加农民的收入”中，“增加农民的收入”应填？", "opts": ["increase", "increases", "increasing", "to increase"], "a": 1, "why": "与 not only benefits 平行，benefits 是第三人称单数形式，后半句同样用 increases，主谓一致保持平行。"}], "2023-03-3": [{"q": "“徒步或骑自行车出游”正确的译法是？", "opts": ["travel by foot or by bike", "travel on feet or on bike", "travel on foot or by bike", "travel with foot or with bike"], "a": 2, "why": "notes 句式：方式状语 on foot（徒步）/ by bike（骑车），两个介词不能混用。"}, {"q": "末句“同时也增强了自己克服困难的勇气”中“增强了”的“了”该如何处理？", "opts": ["用过去时 built up", "“了”不是过去时，用一般现在时 build up", "用将来时 will build up", "必须用现在完成时 have built up"], "a": 1, "why": "notes 明确提醒：第 5 句“增强了”的“了”不是过去时，全篇一般现在时。"}, {"q": "“突发事件”的译法是？", "opts": ["sudden events", "emergency things", "emergencies", "urgent events"], "a": 2, "why": "notes 重点词：突发事件 = emergencies。"}], "2023-06-1": [{"q": "“终身教育”的统一译法是？", "opts": ["lifetime education", "all-life education", "forever education", "lifelong education"], "a": 3, "why": "notes 重点词：终身教育 = lifelong education，术语全篇统一。"}, {"q": "“中国越来越重视终身教育”正确的译文是？", "opts": ["China attaches increasing importance to lifelong education.", "China attachs increasing importance to lifelong education.", "China pays increasing important to lifelong education.", "China attaches increasing important to lifelong education."], "a": 0, "why": "notes 句式：attach importance to；主语 China 是第三人称单数，attach 用 attaches，importance 是名词。"}, {"q": "末句“以使继续教育在国家发展战略中发挥更大的作用”中表目的的短语是？", "opts": ["so that to enable", "so as to enable", "in order enable", "so as enable"], "a": 1, "why": "notes 句式：so as to + 动词原形表目的状语，不能写成 so that to。"}], "2023-06-2": [{"q": "“高等教育”的译法需要注意什么？", "opts": ["写作 higher educations", "higher education 是不可数名词，不加 s", "要用 high education", "要用 advanced educations"], "a": 1, "why": "notes 重点词：高等教育 = higher education（不可数）。"}, {"q": "“高校学生总数已接近4,700万人”正确的译文是？", "opts": ["The total number of college students have reached nearly 47 million.", "The total number of college students has reached nearly 47 million.", "The total number of college students are reached nearly 47 million.", "The total numbers of college students has reached nearly 47 million."], "a": 1, "why": "notes 句式：The total number 作主语时谓语用单数 has；数字 4,700 万写成 47 million。"}, {"q": "“4,700万”正确的英文数字表达是？", "opts": ["47 millions", "4,700 million", "47 million", "47 million of"], "a": 2, "why": "notes 句式明确给出数字 47 million：million 前有具体数字时不加 s，后面不加 of。"}], "2023-06-3": [{"q": "“《义务教育法》”的译法是？", "opts": ["the Compulsory Education Law", "the Obligation Education Law", "the Must Education Law", "the Compulsory Educations Law"], "a": 0, "why": "notes 重点词：义务教育 = compulsory education，《义务教育法》= the Compulsory Education Law。"}, {"q": "“以使每个儿童都享有受教育的机会”中“享有……的机会”正确的译法是？", "opts": ["can have accesses to education", "can access to education", "can have access education", "can have access to education"], "a": 3, "why": "notes 句式：have access to 是固定搭配，access 在此为名词，to 不能省。"}, {"q": "第 2 句“自1986年《义务教育法》生效以来……实现了在全国推行义务教育的目标”，主句谓语为什么用现在完成时 has achieved？", "opts": ["因为句子里有数字 1986", "因为 Since 1986 表示从过去持续到现在，要与现在完成时呼应", "因为 achieve 是完成动词", "因为主语 China has 顺口"], "a": 1, "why": "notes 句式：时间线索 Since 1986 → Today → Since 2008 串联，“自……以来”要用现在完成时。"}], "2023-12-1": [{"q": "“健康中国”的译法是？", "opts": ["a Health China", "the Healthy China", "a Healthy China", "Healthy of China"], "a": 2, "why": "notes 重点词：健康中国 = a Healthy China，Healthy 是形容词，前面用不定冠词 a。"}, {"q": "“各级政府”的译法是？", "opts": ["all levels governments", "governments of every class", "each level government", "governments at all levels"], "a": 3, "why": "notes 重点词：各级政府 = governments at all levels。"}, {"q": "“人们对合理营养增进健康的重要性有了更加深刻的认识”正确的译文是？", "opts": ["people have come to better understand the importance of balanced nutrition in improving health", "people have come to more deeply know the important of balanced nutrition in improving health", "people understood better the importance of balanced nutrition in improving health yesterday", "people has come to better understand the importance of balanced nutrition in improving health"], "a": 0, "why": "notes 句式：have come to better understand 表“逐渐有了更深的认识”；主语 people 用复数谓语 have come。"}], "2023-12-2": [{"q": "“有机食品”的译法是？", "opts": ["organized food", "organ food", "organic food", "machine food"], "a": 2, "why": "notes 重点词：有机食品 = organic food。"}, {"q": "“食品种类有限、数量不足”正确的译文是？", "opts": ["foods were limited in variety and insufficient in quantity", "food were limited in variety and insufficient in quantity", "food was limited in variety and insufficient in quantity", "foods was limited in variety and insufficient in quantity"], "a": 2, "why": "notes 重点词：食品 food 不可数，作主语时谓语用单数 was；本句讲过去，用一般过去时。"}, {"q": "末句“目前市场上推出的低脂、低糖、有机食品受到人们的普遍欢迎”正确的译文结尾是？", "opts": ["is widely welcome by people", "widely welcomes by people", "are widely welcomed by people", "is widely welcomed by people"], "a": 3, "why": "notes 句式：转被动 is widely welcomed；主语是 the…food（不可数、单数），谓语用 is。"}], "2023-12-3": [{"q": "“物流业”的译法是？", "opts": ["the logistic industry", "the flow industry", "the logistics industry", "the delivery things industry"], "a": 2, "why": "原文已给出物流业 (logistics industry)，本篇统一用 the logistics industry。"}, {"q": "“物流业的发展使人们很容易品尝到全国各地的特产”正确的译文是？", "opts": ["The development of the logistics industry makes people easy to taste specialties from all over the country.", "The development of the logistics industry makes it easy for people to taste specialties from all over the country.", "The development of the logistics industry makes it easily for people taste specialties from all over the country.", "The development of the logistics industry make people easy taste specialties from all over the country."], "a": 1, "why": "notes 句式：使役句 makes it easy for sb to do，it 是形式宾语，不能写成 makes people easy to do。"}, {"q": "“如今，人们不再满足于吃得饱”正确的译文是？", "opts": ["Today, people are not longer content with simply having enough to eat.", "Today, people no longer are content with eat simply enough.", "Today, people are no more content to eat enough simply.", "Today, people are no longer content with simply having enough to eat."], "a": 3, "why": "notes 句式：are no longer content with…；no longer 放在 be 动词之后，content with 后接动名词 having。"}], "2024-06-1": [{"q": "第 1 句“其特点是房屋建造在一个院子的四周”，译文用哪个短语收编“其特点是”？", "opts": ["characterized by houses built on the four sides of a courtyard", "its character is houses built on the four sides of a courtyard", "which character is houses on the four sides", "featuring that houses built on four sides"], "a": 0, "why": "notes 句式：第 1 句用 characterized by 收编“其特点是”，后接 enclosing 接“合围在中间”。"}, {"q": "“其中以北京的四合院最为典型”正确的译文是？", "opts": ["among them which the ones in Beijing are the most typical", "among which the ones in Beijing are the most typical", "in which the ones in Beijing are most typical ones", "among who the ones in Beijing are the most typical"], "a": 1, "why": "notes 句式：There be 结构 + among which 非限制性定语从句，最高级 the most typical。"}, {"q": "末句“四合院对中国文化的传承……具有重要意义”中“具有重要意义”应译为？", "opts": ["remain great significance to", "are of great significant to", "remain greatly significance to", "remain of great significance to"], "a": 3, "why": "notes 句式：remain of great significance to 表“具有重要意义”，significance 是名词。"}], "2024-06-2": [{"q": "“长期以来，农历在农业生产和人们日常生活中发挥着重要作用”正确的译文是？", "opts": ["For a long time, the lunar calendar has played an important role in agricultural production and people's daily life.", "For a long time, the lunar calendar played important roles in agricultural production and people's daily life.", "For a long time, the lunar calendar is playing an important role at agricultural production and people's daily life.", "For a long time, the lunar calendar has played an important role on agricultural production and people's daily life."], "a": 0, "why": "notes 句式：play an important role in；“长期以来”与现在完成时 has played 呼应。"}, {"q": "“中国的春节、中秋节等传统节日的日期都基于农历”中“基于”应译为？", "opts": ["base on", "are basing on", "are based on", "based in"], "a": 2, "why": "notes 句式：be based on 是固定搭配，用被动形式 are based on the lunar calendar。"}, {"q": "“以便最有效地利用自然资源和气候条件”中“最有效地利用”应译为？", "opts": ["make the most effectively use of", "do the best use of", "make the most effective use of", "make most effective used of"], "a": 2, "why": "notes 句式：make the most effective use of，effective 是形容词修饰名词 use。"}], "2024-06-3": [{"q": "“是中国传统文化中最常用的吉祥符号之一”正确的译文片段是？", "opts": ["one of the most commonly used auspicious symbol", "one of most commonly used auspicious symbols", "one of the most commonly used auspicious symbols", "one of the most commonly using auspicious symbols"], "a": 2, "why": "notes 句式：one of the most + 最高级 + 复数名词，symbols 必须用复数。"}, {"q": "“春节贴福字是民间由来已久的习俗”正确的译文开头是？", "opts": ["Paste the character \"Fu\" during the Spring Festival is…", "Pasting the character \"Fu\" during the Spring Festival is…", "Pasted the character \"Fu\" during the Spring Festival are…", "To pasting the character \"Fu\" during the Spring Festival is…"], "a": 1, "why": "notes 句式：动名词作主语 Pasting…is…，动名词短语作主语谓语用单数。"}, {"q": "“人们有时还将福字倒过来贴”中“倒过来”应译为？", "opts": ["down upside", "upside down", "invertedly down", "up side down"], "a": 1, "why": "notes 重点：upside down 表“倒过来”，是固定表达。"}], "2024-12-1": [{"q": "“垃圾分类”的译法是？", "opts": ["garbage classify", "rubbish divide", "garbage classification", "garbage separation class"], "a": 2, "why": "notes 重点词：垃圾分类 = garbage classification。"}, {"q": "第 3 句“采取了一系列有效措施，包括大力发展清洁能源……”中 including 后面“发展”应填？", "opts": ["develop", "develops", "developed", "developing"], "a": 3, "why": "notes 句式：including + 动名词并列：developing clean energy, improving…, promoting…, implementing… 形式保持一致。"}, {"q": "末句“为全球环境保护做出了重要贡献”中“做出贡献”应译为？", "opts": ["making important contributions to", "making contributions for", "make contribution to", "contributing importance to"], "a": 0, "why": "notes 句式：make contributions to，介词用 to，contributions 用复数。"}], "2024-12-2": [{"q": "第 2 句“中国新能源汽车年产量已高达近千万辆，占全球市场份额超过60%”中“占……”应填？", "opts": ["accounts for over 60% of the global market share", "account for over 60% of the global market share", "accounted for over 60% of the global market share", "accounting for over 60% of the global market share"], "a": 3, "why": "notes 句式：account for（占份额）；此处是分词短语 accounting for…，与前面的 has reached 并列说明。"}, {"q": "“近千万辆”的正确表达是？", "opts": ["nearly 10 millions units", "almost 10 million of units", "near 10 million unit", "nearly 10 million units"], "a": 3, "why": "notes 数字要点：近千万辆 = nearly 10 million units，million 前有数字不加 s，units 用复数。"}, {"q": "“鼓励新能源汽车企业进行技术创新”正确的译文片段是？", "opts": ["encourages new energy vehicle enterprises make technological innovations", "encourages new energy vehicle enterprises to make technological innovations", "encourages new energy vehicle enterprises to making technological innovations", "encourages new energy vehicle enterprises for make technological innovations"], "a": 1, "why": "notes 句式：encourage sb to do，to 不能省，后接动词原形。"}], "2024-12-3": [{"q": "“敦煌莫高窟数字展示中心于2014年开放启用”中“开放启用”应填？", "opts": ["opens", "has opened", "opening", "opened"], "a": 3, "why": "notes 时态要点：“2014年开放启用”是明确的过去时间点，用一般过去时 opened，不能用现在完成时。"}, {"q": "第 2 句“使游客进入洞窟参观之前就能了解莫高窟的历史文化”中“使游客能了解”应填？", "opts": ["enabling visitors to learn about", "enables visitors learn about", "enable visitors to learning about", "enabling visitors learning about"], "a": 0, "why": "notes 句式：enabling 分词作结果状语，enable sb to do 中 to 不能省。"}, {"q": "末句“以使这一世界文化遗产得到妥善保护、长久利用”正确的译文片段是？", "opts": ["so that this World Cultural Heritage site can properly protect", "so as that this World Cultural Heritage site can be properly protected", "so that this World Cultural Heritage site can be properly protected", "in order that this World Cultural Heritage site protected"], "a": 2, "why": "notes 句式：so that 目的状语；遗产是“被保护”，用被动 can be properly protected。"}], "2025-06-1": [{"q": "末句“为全球粮食安全做出了重大贡献”中“粮食安全”应译为？", "opts": ["food safety", "food safe", "foods security", "food security"], "a": 3, "why": "notes 专名明确：粮食安全 = food security（指粮食供应保障），不是 food safety（食品安全）。"}, {"q": "第 1 句“被誉为‘杂交水稻之父’的袁隆平”中“被誉为”应填？", "opts": ["knowing as the father of hybrid rice", "known as the father of hybrid rice", "known for the father of hybrid rice", "is known as the father of hybrid rice"], "a": 1, "why": "notes 要点：誉称降为 known as 定语（过去分词短语作同位语）；known as 表“被称为”，known for 表“因……而出名”，别混。"}, {"q": "“产量可提高20-30%”正确的译文是？", "opts": ["its yield can increase to 20 to 30 percent", "its yield can increase by 20 to 30 percents", "its yield can increase with 20-30 percent", "its yield can increase by 20 to 30 percent"], "a": 3, "why": "notes 要点：产量提高 increase by 20 to 30 percent；“提高”的幅度用 by 引出，percent 不加 s。"}], "2025-06-2": [{"q": "“冰雪大世界”的译法是？", "opts": ["Ice and Snow Big World", "the Big Ice and Snow World", "the Ice and Snow World", "the World of Big Ice Snow"], "a": 2, "why": "notes 专名：冰雪大世界 = the Ice and Snow World，不要把“大”逐字译成 Big 塞进去。"}, {"q": "“哈尔滨利用丰富的冰雪资源打造了……”中“利用”应填？", "opts": ["by make full use of its rich ice and snow resources", "by making fully use of its rich ice and snow resources", "with making full use of its rich ice and snow resources", "by making full use of its rich ice and snow resources"], "a": 3, "why": "notes 要点：“利用”译为 by making full use of，by 后接动名词 making。"}, {"q": "“曾令人畏惧的冰天雪地”中“曾令人畏惧的”应译为？", "opts": ["the once fearing land of ice and snow", "the feared once land of ice and snow", "the once-feared land of ice and snow", "the once fear land of ice and snow"], "a": 2, "why": "notes 要点：曾令人畏惧 = once-feared，用连字符合成形容词放在名词前。"}], "2025-06-3": [{"q": "“社区居民步行15分钟就能享受到日常所需的公共服务”正确的译文片段是？", "opts": ["within a 15-minutes walk", "in just 15-minute walk", "within just 15 minutes walk", "within just a 15-minute walk"], "a": 3, "why": "notes 要点：步行15分钟 = within a 15-minute walk；15-minute 是连字符合成形容词，minute 用单数。"}, {"q": "同句中“享受到……公共服务”应译为？", "opts": ["can have access to the public services they need", "can have accesses to the public services they need", "can access to the public services they need", "can have an access to the public services they need"], "a": 0, "why": "notes 要点：享受到服务 = have access to，access 是不可数名词，不加 s、不加冠词 an。"}, {"q": "“社区食堂”的译法是？", "opts": ["society canteens", "community kitchens halls", "community canteens", "communal eating rooms"], "a": 2, "why": "notes 专名：社区食堂 = community canteens。"}], "2025-12-1": [{"q": "“全国民营企业数量超过5700万家”中“5700万”应译为？", "opts": ["57 millions", "5,700 million", "57 million of", "57 million"], "a": 3, "why": "notes 数字要点：5700万 = 57 million，million 前有具体数字时不加 s。"}, {"q": "同句“占企业总量的92.3%”应填？", "opts": ["account for 92.3% of the total number of enterprises", "accounts for 92.3% of the total number of enterprises", "accounting for 92.3% of the total number of enterprises", "accounted for 92.3% of the total number of enterprises"], "a": 2, "why": "notes 要点：占总量用 accounting for 92.3%… 分词短语，与前句 exceeded 57 million 并列说明。"}, {"q": "“民营企业的研发投入不断增加”中“研发投入”应译为？", "opts": ["R&D investment", "R and D investments money", "researching investment", "development research pay"], "a": 0, "why": "notes 要点：研发投入 = R&D investment，R&D 是 research and development 的缩写。"}], "2025-12-2": [{"q": "第 1 句“城市漫步……已成为一种旅游新潮流”中“已成为”按本篇时态要点应用？", "opts": ["became", "becomes", "becoming", "has become"], "a": 3, "why": "notes 时态要点：已成为处用现在完成时 has become，表示过去兴起、影响延续到现在。"}, {"q": "“不追求在短时间内游览尽可能多的景点”中“尽可能多的景点”应译为？", "opts": ["as many attractions as possibly", "as much attractions as possible", "many attractions as possible as", "as many attractions as possible"], "a": 3, "why": "notes 要点：尽可能多 = as many…as possible；attractions 是可数名词复数，用 many 不用 much。"}, {"q": "“漫步者品尝地道小吃”中“地道小吃”应译为？", "opts": ["authentic snackes", "authentically snacks", "local tunnel food", "authentic snacks"], "a": 3, "why": "notes 要点：地道小吃 = authentic snacks，authentic 表“地道的”，snacks 用复数。"}], "2025-12-3": [{"q": "“绿水青山”的译法应该怎么做？", "opts": ["意译为 green waters and green mountains", "意译为 clear water and green hills", "题目已给 lucid waters and lush mountains，照搬即可", "译为 lucid water and lush mountain"], "a": 2, "why": "notes 专名明确：绿水青山 = lucid waters and lush mountains（题目已给，照搬），不要自己另造译法。"}, {"q": "“生态环境与人类社会和谐共存的观念在中国已深入人心”中“已深入人心”应填？", "opts": ["has took deep root in China", "has taken deeply root in China", "take deep roots in China", "has taken deep root in China"], "a": 3, "why": "notes 要点：深入人心 = take deep root；现在完成时 has taken，take 的过去分词是 taken。"}, {"q": "末句“绿色经济的推进不仅能为中国可持续发展做出贡献，也为全球环境保护提供了宝贵经验”正确的译文开头是？", "opts": ["The promotion of the green economy not only contribute to China's sustainable development but also provides…", "The promotion of the green economy not only contributes to China's sustainable development and also provides…", "The promotion of the green economy not only contributes to China's sustainable development but also provides…", "The promotion of the green economy not only contributes to China's sustainable development but provides also…"], "a": 2, "why": "notes 要点：not only…but also… 平行结构；主语 The promotion 是单数，两个动词都用第三人称单数 contributes / provides。"}], "2026-06-1": [{"q": "“教师节”的正确写法是？", "opts": ["Teacher's Day", "Teachers Day", "Teacher Day", "Teachers' Day"], "a": 3, "why": "notes 重点词汇：教师节 = Teachers' Day，是复数所有格（Teachers'），Day 首字母大写。"}, {"q": "“中国从1985年开始将每年的9月10日定为教师节”正确的译文片段是？", "opts": ["China observed September 10 of each year as Teachers' Day since 1985", "China observes September 10 of each year as Teachers' Day since 1985", "China has observed September 10 of each year as Teachers' Day since 1985", "China is observing September 10 of each year as Teachers' Day since 1985"], "a": 2, "why": "notes 句式要点：从1985年开始并延续至今，用现在完成时 has observed…since 1985。"}, {"q": "末句“尊师是中华民族的传统美德”正确的译文开头是？", "opts": ["Respecting teachers are a traditional virtue…", "Respect teachers is a traditional virtue…", "Respected teachers is a traditional virtue…", "Respecting teachers is a traditional virtue…"], "a": 3, "why": "notes 句式要点：动名词短语作主语视为单数，Respecting teachers is…，谓语用 is。"}], "2026-06-2": [{"q": "第 2 句“主人会根据客人的口味和喜好准备丰富精致的菜肴”中，“会”该如何翻译？", "opts": ["用 will prepare，“会”就是将来时", "“会”表惯例，用一般现在时 prepares", "用 shall prepare", "用 must prepare"], "a": 1, "why": "notes 句式要点：全篇一般现在时，“会”表惯例不用 will；本句是 To entertain guests 目的状语前置 + prepares。"}, {"q": "第 1 句“蕴含着热情有礼的待客之道”正确的译文片段是？", "opts": ["embodying the warm and courteous way of treating guests", "embodies the warm and courteous way of treating guests", "embodied the warm and courteous way of treating guests", "to embody the warm and courteous way of treating guests"], "a": 0, "why": "notes 句式要点：第 1 句用 embodying 现在分词作伴随补充，承接主句 is an important part of…。"}, {"q": "末句“这种独特的餐桌礼仪已延续了数千年”中“已延续”应填？", "opts": ["lasts for thousands of years", "lasted for thousands of years", "is lasting for thousands of years", "has lasted for thousands of years"], "a": 3, "why": "notes 句式要点：已延续数千年用现在完成时 has lasted for thousands of years。"}], "2026-06-3": [{"q": "etiquette 是不可数名词，所以“人际交往的一种重要礼节”应译为？", "opts": ["an important etiquette", "important etiquettes", "an important form of etiquette", "an etiquette form important"], "a": 2, "why": "notes 重点词汇：礼节 = etiquette（不可数），不能直接加 an，要用 an important form of etiquette。"}, {"q": "“一份精心挑选、符合接受者喜好的礼物”正确的译文是？", "opts": ["A carefully chosen gift suits the recipient's preferences…", "A carefully chosen gift that suit the recipient's preferences…", "A carefully chosen gift that suits the recipient's preferences…", "Which suits the recipient's preferences a carefully chosen gift…"], "a": 2, "why": "notes 句式要点：carefully chosen 前置修饰，that suits… 定语从句后置；that 指单数 gift，动词用 suits。"}, {"q": "末句“以增进彼此的融洽关系”中表目的的短语是？", "opts": ["so as enhance their harmonious relationship", "in order enhance their harmonious relationship", "so that to enhance their harmonious relationship", "so as to enhance their harmonious relationship"], "a": 3, "why": "notes 句式要点：so as to + 动词原形表目的，so as 和 to 都不能省。"}]};
+
+var state = {
+  year: "all",
+  paperId: PAPERS[0].id,
+  tab: "practice",
+  practice: {},   // pid -> {answers:{}, revealed:{}, rates:{}}
+  quiz: {},       // pid -> {sel:{}, graded:false, revealed:{}}
+  timerSec: 0, timerOn: false, timerHandle: null
+};
+
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function paperById(id){ for (var i=0;i<PAPERS.length;i++) if (PAPERS[i].id===id) return PAPERS[i]; return PAPERS[0]; }
+function prac(pid){
+  if (!state.practice[pid]) state.practice[pid] = {answers:{}, revealed:{}, rates:{}};
+  return state.practice[pid];
+}
+function quizState(pid){
+  if (!state.quiz[pid]) state.quiz[pid] = {sel:{}, graded:false, revealed:{}};
+  if (!state.quiz[pid].revealed) state.quiz[pid].revealed = {};
+  return state.quiz[pid];
+}
+
+/* ---------- 篇目选择 ---------- */
+function renderYears(){
+  var years = ["all",2022,2023,2024,2025,2026];
+  var html = "";
+  years.forEach(function(y){
+    var label = (y==="all") ? "全部年份" : (y + " 年");
+    html += '<button class="chip' + (String(state.year)===String(y) ? " on" : "") + '" data-year="' + y + '">' + label + "</button>";
+  });
+  document.getElementById("yearbar").innerHTML = html;
+  var btns = document.querySelectorAll("#yearbar .chip");
+  for (var i=0;i<btns.length;i++){
+    btns[i].addEventListener("click", function(){
+      state.year = this.getAttribute("data-year");
+      renderYears(); renderPapers();
+    });
+  }
+}
+function renderPapers(){
+  var list = PAPERS.filter(function(p){ return state.year==="all" || String(p.year)===String(state.year); });
+  var html = "";
+  list.forEach(function(p){
+    html += '<button class="papercard' + (p.id===state.paperId ? " on" : "") + '" data-pid="' + p.id + '">'
+      + '<div class="pl">' + esc(p.label) + '</div>'
+      + '<div class="pt">' + esc(p.topic) + '</div>'
+      + '<div class="pm">' + p.sentences.length + ' 句 · 小测 3 题</div></button>';
+  });
+  document.getElementById("papergrid").innerHTML = html || '<div class="empty">该年份暂无篇目</div>';
+  var cards = document.querySelectorAll(".papercard");
+  for (var i=0;i<cards.length;i++){
+    cards[i].addEventListener("click", function(){
+      state.paperId = this.getAttribute("data-pid");
+      renderPapers(); renderWs();
+      document.getElementById("ws").scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  }
+}
+
+/* ---------- 工作区 ---------- */
+function renderWs(){
+  var p = paperById(state.paperId);
+  document.getElementById("ws-title").textContent = p.label;
+  document.getElementById("ws-topic").textContent = "主题：" + p.topic + "（共 " + p.sentences.length + " 句）";
+  var tabs = document.querySelectorAll(".tab");
+  for (var i=0;i<tabs.length;i++){
+    tabs[i].classList.toggle("on", tabs[i].getAttribute("data-tab")===state.tab);
+  }
+  if (state.tab==="practice") renderPractice(p);
+  else if (state.tab==="compare") renderCompare(p);
+  else if (state.tab==="notes") renderNotes(p);
+  else renderQuiz(p);
+}
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click", function(){ state.tab = this.getAttribute("data-tab"); renderWs(); });
+});
+
+/* ---------- 计时器 ---------- */
+function fmtTime(s){
+  var m = Math.floor(s/60), r = s%60;
+  return (m<10?"0":"")+m+":"+(r<10?"0":"")+r;
+}
+function tickTimer(){
+  var el = document.getElementById("timerVal");
+  if (el) el.textContent = fmtTime(state.timerSec);
+}
+function toggleTimer(){
+  if (state.timerOn){
+    clearInterval(state.timerHandle); state.timerOn = false;
+  } else {
+    state.timerOn = true;
+    state.timerHandle = setInterval(function(){ state.timerSec++; tickTimer(); }, 1000);
+  }
+  var b = document.getElementById("timerBtn");
+  if (b) b.textContent = state.timerOn ? "⏸ 暂停计时" : "▶ 开始计时";
+}
+function resetTimer(){
+  clearInterval(state.timerHandle); state.timerOn = false; state.timerSec = 0; tickTimer();
+  var b = document.getElementById("timerBtn");
+  if (b) b.textContent = "▶ 开始计时";
+}
+
+/* ---------- ① 逐句翻译练习 ---------- */
+function renderPractice(p){
+  var pr = prac(p.id);
+  var done = 0;
+  p.sentences.forEach(function(s,i){ if (pr.answers[i] && pr.answers[i].trim()) done++; });
+  var html = '<div class="toolbar">'
+    + '<span class="timer">⏱ <span id="timerVal">' + fmtTime(state.timerSec) + '</span></span>'
+    + '<button class="btn small" id="timerBtn">' + (state.timerOn ? "⏸ 暂停计时" : "▶ 开始计时") + '</button>'
+    + '<button class="btn small" id="timerReset">↺ 计时清零</button>'
+    + '<span class="spacer"></span>'
+    + '<button class="btn small" id="revealAll">显示全部参考译文</button>'
+    + '<button class="btn small" id="hideAll">隐藏全部参考译文</button>'
+    + '</div>'
+    + '<div class="progress"><i style="width:' + (p.sentences.length ? Math.round(done/p.sentences.length*100) : 0) + '%"></i></div>'
+    + '<div class="progress-note">已写译文 ' + done + ' / ' + p.sentences.length + ' 句。做法：一句一句写英文，写完点开参考译文对照，再给自己打个自评。</div>';
+  p.sentences.forEach(function(s,i){
+    var revealed = !!pr.revealed[i];
+    html += '<div class="scard">'
+      + '<span class="snum">第 ' + (i+1) + ' 句</span>'
+      + (pr.rates[i] ? ' <span class="doneflag">✓ 已自评：' + esc(pr.rates[i]) + '</span>' : '')
+      + '<p class="zh">' + esc(s.zh) + '</p>'
+      + '<textarea data-idx="' + i + '" placeholder="在这里写你的英文译文……">' + '</textarea>'
+      + '<div class="row">'
+      + '<button class="btn small primary" data-act="reveal" data-idx="' + i + '">' + (revealed ? "收起参考译文" : "看参考译文") + '</button>'
+      + '</div>'
+      + (revealed ? '<div class="refbox"><span class="rlab">参考译文</span>' + esc(s.en) + '</div>' : '')
+      + '<div class="rate' + (revealed ? " show" : "") + '"><span class="rl">对照后自评：</span>'
+      + ["译对了","大体对","需重练"].map(function(r){
+          return '<button data-act="rate" data-idx="' + i + '" data-r="' + r + '"' + (pr.rates[i]===r ? ' class="on"' : "") + '>' + r + '</button>';
+        }).join("")
+      + '</div></div>';
+  });
+  document.getElementById("pane").innerHTML = html;
+  // 恢复已输入的译文
+  var tas = document.querySelectorAll("#pane textarea");
+  for (var i=0;i<tas.length;i++){
+    var idx = tas[i].getAttribute("data-idx");
+    tas[i].value = pr.answers[idx] || "";
+    tas[i].addEventListener("input", function(){
+      prac(p.id).answers[this.getAttribute("data-idx")] = this.value;
+      refreshProgress(p);
+    });
+  }
+  document.getElementById("timerBtn").addEventListener("click", toggleTimer);
+  document.getElementById("timerReset").addEventListener("click", resetTimer);
+  document.getElementById("revealAll").addEventListener("click", function(){
+    p.sentences.forEach(function(s,i){ prac(p.id).revealed[i] = true; });
+    renderPractice(p);
+  });
+  document.getElementById("hideAll").addEventListener("click", function(){
+    prac(p.id).revealed = {};
+    renderPractice(p);
+  });
+  var btns = document.querySelectorAll("#pane [data-act]");
+  for (var j=0;j<btns.length;j++){
+    btns[j].addEventListener("click", function(){
+      var act = this.getAttribute("data-act"), idx2 = this.getAttribute("data-idx");
+      if (act==="reveal"){ prac(p.id).revealed[idx2] = !prac(p.id).revealed[idx2]; }
+      if (act==="rate"){ prac(p.id).rates[idx2] = this.getAttribute("data-r"); }
+      renderPractice(p);
+    });
+  }
+}
+function refreshProgress(p){
+  var pr = prac(p.id), done = 0;
+  p.sentences.forEach(function(s,i){ if (pr.answers[i] && pr.answers[i].trim()) done++; });
+  var bar = document.querySelector("#pane .progress>i");
+  if (bar) bar.style.width = (p.sentences.length ? Math.round(done/p.sentences.length*100) : 0) + "%";
+  var note = document.querySelector("#pane .progress-note");
+  if (note) note.textContent = "已写译文 " + done + " / " + p.sentences.length + " 句。做法：一句一句写英文，写完点开参考译文对照，再给自己打个自评。";
+}
+
+/* ---------- ② 参考译文对照 ---------- */
+var cmpShowEn = true;
+function renderCompare(p){
+  var html = '<div class="toolbar">'
+    + '<button class="btn small" id="cmpToggle">' + (cmpShowEn ? "隐藏英文译文（先默想再看）" : "显示英文译文") + '</button>'
+    + '<span class="spacer"></span>'
+    + '<span style="color:var(--ink-soft);font-size:14px">逐句对照：左中文，右英文</span></div>'
+    + '<div class="cmp"><div class="cmp-head"><div>中文原文</div><div>参考译文</div></div>';
+  p.sentences.forEach(function(s){
+    html += '<div class="cmp-row"><div class="czh">' + esc(s.zh) + '</div>'
+      + '<div class="cen' + (cmpShowEn ? "" : " hidden") + '">' + esc(s.en) + '</div></div>';
+  });
+  html += '</div>';
+  document.getElementById("pane").innerHTML = html;
+  document.getElementById("cmpToggle").addEventListener("click", function(){ cmpShowEn = !cmpShowEn; renderCompare(p); });
+}
+
+/* ---------- ③ 重点词语与句式 ---------- */
+function renderNotes(p){
+  var parts = p.notes.match(/[^。]+。?/g) || [p.notes];
+  var html = '<div class="topicbox"><b>本篇主题：</b>' + esc(p.topic) + '</div>'
+    + '<h2 style="margin-bottom:12px">本篇要点（统一译法 · 重点句式 · 易错点）</h2>'
+    + '<ul class="notes-list">';
+  parts.forEach(function(t){
+    t = t.trim();
+    if (t) html += '<li>' + esc(t) + '</li>';
+  });
+  html += '</ul>'
+    + '<p style="color:var(--ink-soft);font-size:14.5px;margin-top:16px">讲评建议：先让学生对照第 ② 页逐句找这些句式在译文里的落点，再回到第 ① 页把“需重练”的句子重写一遍。</p>';
+  document.getElementById("pane").innerHTML = html;
+}
+
+/* ---------- ④ 课堂小测 ---------- */
+function renderQuiz(p){
+  var qs = QUIZ[p.id] || [];
+  var qz = quizState(p.id);
+  var html = "";
+  if (qz.graded){
+    var score = 0;
+    qs.forEach(function(q,i){ if (qz.sel[i]===q.a) score++; });
+    html += '<div class="scorebox show">本篇小测得分：<b>' + score + ' / ' + qs.length + '</b>'
+      + (score===qs.length ? "，全对，这一课的要点都拿下了。" : "，看看下面每题的解析，把错的要点回到第 ③ 页再过一遍。") + '</div>';
+  }
+  var allRevealed = qs.length > 0 && qs.every(function(q,i){ return !!qz.revealed[i]; });
+  qs.forEach(function(q,qi){
+    var revealed = !!qz.revealed[qi];
+    var showAnswer = qz.graded || revealed;
+    html += '<div class="qcard"><p class="qq">' + (qi+1) + ". " + esc(q.q) + '</p>';
+    q.opts.forEach(function(o,oi){
+      var cls = "opt";
+      if (qz.graded){
+        if (oi===q.a) cls += " correct";
+        else if (qz.sel[qi]===oi) cls += " wrong";
+      } else if (revealed && oi===q.a) cls += " correct";
+      else if (qz.sel[qi]===oi) cls += " sel";
+      html += '<label class="' + cls + '"><input type="radio" name="q' + qi + '" value="' + oi + '"' + (qz.sel[qi]===oi ? " checked" : "") + (qz.graded ? " disabled" : "") + '><span>' + esc(o) + '</span></label>';
+    });
+    if (!qz.graded){
+      html += '<div class="qfoot"><button type="button" class="btn small reveal-btn" data-qi="' + qi + '" aria-expanded="' + (revealed ? "true" : "false") + '">' + (revealed ? "收起答案" : "查看正确答案") + '</button>'
+        + (revealed ? "" : '<span class="hint">先自己选一选，再点开核对</span>') + '</div>';
+    }
+    if (showAnswer){
+      if (qz.graded){
+        html += '<div class="why show"><b>' + (qz.sel[qi]===q.a ? "✓ 答对了。" : "✗ 正确答案是 " + "ABCD"[q.a] + "。") + '</b>' + esc(q.why) + '</div>';
+      } else {
+        html += '<div class="why show"><b>正确答案是 ' + "ABCD"[q.a] + '：' + esc(q.opts[q.a]) + '。</b><br>' + esc(q.why) + '</div>';
+      }
+    }
+    html += '</div>';
+  });
+  html += '<div class="toolbar">'
+    + (qz.graded
+        ? '<button class="btn primary" id="quizRedo">重新作答</button>'
+        : '<button class="btn primary" id="quizSubmit">提交判分</button>'
+          + '<button class="btn" id="quizRevealAll">' + (allRevealed ? "收起全部答案" : "查看全部正确答案") + '</button>')
+    + '<span style="color:var(--ink-soft);font-size:14px">共 ' + qs.length + ' 题，全部选完再提交；也可以随时点每题下方的按钮查看正确答案。</span></div>';
+  document.getElementById("pane").innerHTML = html;
+  var revealBtns = document.querySelectorAll("#pane .reveal-btn");
+  for (var r=0;r<revealBtns.length;r++){
+    revealBtns[r].addEventListener("click", function(){
+      var qi2 = parseInt(this.getAttribute("data-qi"), 10);
+      var st = quizState(p.id);
+      st.revealed[qi2] = !st.revealed[qi2];
+      renderQuiz(p);
+    });
+  }
+  var revealAll = document.getElementById("quizRevealAll");
+  if (revealAll) revealAll.addEventListener("click", function(){
+    var st2 = quizState(p.id);
+    var every = qs.length > 0 && qs.every(function(q,i){ return !!st2.revealed[i]; });
+    qs.forEach(function(q,i){ st2.revealed[i] = !every; });
+    renderQuiz(p);
+  });
+  var radios = document.querySelectorAll("#pane input[type=radio]");
+  for (var i=0;i<radios.length;i++){
+    radios[i].addEventListener("change", function(){
+      var qi = parseInt(this.name.substring(1), 10);
+      quizState(p.id).sel[qi] = parseInt(this.value, 10);
+      renderQuiz(p);
+    });
+  }
+  var sub = document.getElementById("quizSubmit");
+  if (sub) sub.addEventListener("click", function(){
+    var qz2 = quizState(p.id), missing = [];
+    qs.forEach(function(q,i){ if (qz2.sel[i]===undefined) missing.push(i+1); });
+    if (missing.length){
+      var note = document.createElement("div");
+      note.className = "scorebox show";
+      note.textContent = "还有第 " + missing.join("、") + " 题没选，先选完再提交。";
+      var pane = document.getElementById("pane");
+      pane.insertBefore(note, pane.firstChild);
+      note.scrollIntoView({behavior:"smooth", block:"center"});
+      return;
+    }
+    qz2.graded = true;
+    renderQuiz(p);
+    document.getElementById("ws").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+  var redo = document.getElementById("quizRedo");
+  if (redo) redo.addEventListener("click", function(){
+    state.quiz[p.id] = {sel:{}, graded:false, revealed:{}};
+    renderQuiz(p);
+  });
+}
+
+/* ---------- 初始化 ---------- */
+renderYears();
+renderPapers();
+renderWs();
+</script>
+</body>
+</html>
