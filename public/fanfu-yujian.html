@@ -223,6 +223,7 @@
   <a href="#quiz" data-i18n="nav_quiz">课堂小测</a>
   <a href="#guide" data-i18n="nav_guide">教师指南</a>
   <a href="#stats" data-i18n="nav_stats">教师统计</a>
+  <a href="#model" data-i18n="nav_model">繁复指数</a>
 </nav>
 
 <nav class="coursenav">
@@ -302,9 +303,9 @@
     平均句长 = 总词数（字数）÷ 句子数（英文按 . ! ? 切句，中文按 。？！；切句；连字符词计 1 词）；
     从属标记密度 = 从属标记数 ÷ 总词数（字数）× 100；
     长句占比 = 长句数 ÷ 总句数 × 100（英文长句 ≥25 词，中文长句 ≥30 字）；
-    后置扩展率 = 后置扩展结构数 ÷ 总句数（英文：名词 + that/which/who 引导的关系从句；
-    中文：“的”字前置定语结构，即汉字 + 的 + 汉字）。
-    英文后置扩展是近似口径：that/which/who 前一个词若是常见动词（如 said、know、think、see、find）则不计。
+    分支扩展率 = 扩展结构数 ÷ 总句数（英文：名词 + that/which/who 引导的关系从句，向后扩展；
+    中文：“的”字前置定语结构，即汉字 + 的 + 汉字，向前扩展）。
+    英文分支扩展是近似口径：that/which/who 前一个词若是常见动词（如 said、know、think、see、find）则不计。
   </div>
 
   <h3>A 组 · 英文长句（书 90–92、99 页）</h3>
@@ -476,7 +477,7 @@
     <h3>教学提示</h3>
     <ul>
       <li><strong>parody 句是刻意仿造、不能代表常规句式：</strong>A1 长句是作者为嘲弄不良文风而故意仿造的 parody，实测 221 词（书上说“约 200 词”），只能说明英语的繁复“能够达到何种程度”，不要拿它当英语的平均水平；常规参照值是专业作者 20 词、受过教育者 25 词。</li>
-      <li><strong>that 兼作指示代词与从句标记，数从属标记时注意：</strong>that 既可以是关系词、连接词，也可以是指示代词（如 "that of robbing the public" 里的 that 指代 undertaking），本课从属标记密度是按词形统计的近似口径；后置扩展率同样是近似口径（that/which/who 前一个词若是常见动词则不计），课堂上可据此讨论“近似口径”的局限。</li>
+      <li><strong>that 兼作指示代词与从句标记，数从属标记时注意：</strong>that 既可以是关系词、连接词，也可以是指示代词（如 "that of robbing the public" 里的 that 指代 undertaking），本课从属标记密度是按词形统计的近似口径；分支扩展率同样是近似口径（that/which/who 前一个词若是常见动词则不计），课堂上可据此讨论“近似口径”的局限。</li>
       <li><strong>连字符词计 1 词：</strong>A4 狄更斯句里 link-lighted、umbrella-struggling、hackney-coach-jostling、patten-clinking 等连字符词各计 1 词，实测全句 88 词；如果按连字符拆开数，词数会更多。</li>
       <li><strong>Supabase 休眠：</strong>免费项目闲置 7 天会暂停，上课前一天打开一次本页（或点一次刷新）即可唤醒；首次唤醒加载会慢几秒，属正常现象。</li>
       <li><strong>网络不佳时：</strong>本地分析（数据实验室、学生动手分析、儿歌延伸链、小测判分）不依赖后端，断网也能做；只有提交、投票、数据墙、统计需要联网。</li>
@@ -495,11 +496,58 @@
   <div id="statsBox"><p>点"刷新统计"查看全班数据。</p></div>
 </section>
 
+<!-- ============ 9. 繁复指数模型 ============ -->
+<section class="card" id="model">
+  <h2 data-i18n="sec_model">9 · 繁复指数模型</h2>
+  <p class="subtitle">把四项指标合成一个 0–100 的“繁复指数”，测一段文本有多繁复；再拿一对译文对照，看翻译是化繁为简还是化简为繁。The Complexity Index.</p>
+
+  <div class="note blue">
+    <strong>模型公式：</strong>繁复指数 = 句长分 × 45% + 从属密度分 × 30% + 长句占比 × 25%。每项先按教材参照值归一到 0–100 分再加权：句长分，英文（平均句长 − 8）÷ 22 × 100（Flesch 表：对话 8 词 = 0 分，科技英语 30 词 = 100 分），中文（平均句长 − 4）÷ 26 × 100（最佳 4 字 = 0 分，长句线 30 字 = 100 分）；从属密度分 = 从属标记密度 ÷ 8 × 100；长句占比本身就是 0–100 分。分档：40 分以下简短（Concise），40–70 分适中（Moderate），70 分以上繁复（Complex）。
+    <br><strong>去噪说明：</strong>每项分值封顶 100 分，极端长句不会把指数冲爆。A1 parody 句是刻意仿造的极端值（221 词），但实测去掉它之后 A 组指数仍为 94.74，仍在繁复档，说明结论不依赖这一个极端值。
+    <br><strong>分支扩展率不计入总分：</strong>它只数 that/which/who 引导的关系从句，B 组 6 句英译里一句也没有（用的是分词和介词短语），得分是 0；放进总分会把英译拉低、连方向都反了。所以它单列为“分支方向”，只显示数值和方向，不参与加权。
+    <br><strong>注意：</strong>指数只在本地计算，不提交到班级数据墙；数据墙仍只收四项指标。
+  </div>
+
+  <h3>用法一 · 单文本检测</h3>
+  <label>第一步：选择语言 / Language</label>
+  <div class="radio-row">
+    <label><input type="radio" name="modelLang" value="en" checked> 英文 English</label>
+    <label><input type="radio" name="modelLang" value="zh"> 中文 Chinese</label>
+  </div>
+  <label for="modelText">第二步：粘贴文本 / Paste your text</label>
+  <textarea id="modelText" placeholder="例如：粘贴一段英语课文，或一段汉语新闻，再点下面的“测一测繁复指数”。"></textarea>
+  <div>
+    <button class="btn" id="btnModelSingle" type="button">测一测繁复指数</button>
+  </div>
+  <div id="modelSingleResult"></div>
+
+  <h3>用法二 · 翻译对照</h3>
+  <p class="subtitle">贴一对译文，看两边指数怎么变，验证化繁为简 / 化简为繁。先选翻译方向，再贴文本。</p>
+  <label>翻译方向 / Direction</label>
+  <div class="radio-row">
+    <label><input type="radio" name="modelDir" value="en2zh" checked> 英译汉（英文是原文）</label>
+    <label><input type="radio" name="modelDir" value="zh2en"> 汉译英（中文是原文）</label>
+  </div>
+  <label for="modelPairEn">英文 / English</label>
+  <textarea id="modelPairEn" placeholder="英文原文或英文译文"></textarea>
+  <label for="modelPairZh">中文 / Chinese</label>
+  <textarea id="modelPairZh" placeholder="中文译文或中文原文"></textarea>
+  <div>
+    <button class="btn" id="btnModelPair" type="button">对照两边指数</button>
+  </div>
+  <div id="modelPairResult"></div>
+
+  <h3>教材参照组（实时算出）</h3>
+  <p class="subtitle">下面这张表是拿教材例句实时算出来的，不是写死的数字；点“刷新参照”可重算。</p>
+  <p><button class="btn small" id="btnModelRef" type="button">刷新参照</button></p>
+  <div id="modelRefTable"><p>点“刷新参照”查看教材各组繁复指数。</p></div>
+</section>
+
 </main>
 
 <footer>
   <p>《英汉语言对比数据工程》第四章《繁复与简短》· 课堂数据互动实验室（动态版）</p>
-  <p>例句来源：连淑能《英汉对比研究》第四章（第 89–103 页），例句、数字、译文均为教材原句；数据口径见"数据实验室"说明（英文按词计、中文按字计；后置扩展率为近似口径）；统计在浏览器内完成，提交结果存入班级数据库。</p>
+  <p>例句来源：连淑能《英汉对比研究》第四章（第 89–103 页），例句、数字、译文均为教材原句；数据口径见"数据实验室"说明（英文按词计、中文按字计；分支扩展率为近似口径）；统计在浏览器内完成，提交结果存入班级数据库。</p>
   <p>隐私说明：仅收集昵称 / 学号后两位与分析结果，不收集真实姓名、学号全号等个人信息；教师清空后数据不可恢复。</p>
 </footer>
 
@@ -630,17 +678,17 @@
   /* ================= i18n（切换导航、标题与按钮文字） ================= */
   var I18N = {
     zh: { nav_theory: '理论导读', nav_lab: '数据实验室', nav_mine: '学生动手', nav_verify: '验证环节',
-      nav_discuss: '课堂讨论', nav_quiz: '课堂小测', nav_guide: '教师指南', nav_stats: '教师统计',
+      nav_discuss: '课堂讨论', nav_quiz: '课堂小测', nav_guide: '教师指南', nav_stats: '教师统计', nav_model: '繁复指数',
       sec_theory: '1 · 理论导读', sec_lab: '2 · 数据实验室', sec_mine: '3 · 学生动手 · 我的数据',
       sec_verify: '4 · 验证环节 · 假设检验', sec_discuss: '5 · 课堂讨论', sec_quiz: '6 · 评价 · 课堂小测',
-      sec_guide: '7 · 教师指南', sec_stats: '8 · 教师统计视图',
+      sec_guide: '7 · 教师指南', sec_stats: '8 · 教师统计视图', sec_model: '9 · 繁复指数模型',
       btn_analyze: '分析我的文本', btn_submit: '提交到班级汇总', btn_refresh: '刷新数据墙',
       btn_clear: '清空班级数据', btn_stats: '刷新统计', toggle: 'EN' },
     en: { nav_theory: 'Theory', nav_lab: 'Data Lab', nav_mine: 'My Data', nav_verify: 'Verify',
-      nav_discuss: 'Discuss', nav_quiz: 'Quiz', nav_guide: 'Teacher Guide', nav_stats: 'Statistics',
+      nav_discuss: 'Discuss', nav_quiz: 'Quiz', nav_guide: 'Teacher Guide', nav_stats: 'Statistics', nav_model: 'Complexity Index',
       sec_theory: '1 · Theory', sec_lab: '2 · Data Lab', sec_mine: '3 · Hands-on · My Data',
       sec_verify: '4 · Verify · Hypotheses', sec_discuss: '5 · Discussion', sec_quiz: '6 · Quiz',
-      sec_guide: '7 · Teacher Guide', sec_stats: '8 · Class Statistics',
+      sec_guide: '7 · Teacher Guide', sec_stats: '8 · Class Statistics', sec_model: '9 · Complexity Index',
       btn_analyze: 'Analyze my text', btn_submit: 'Submit to class wall', btn_refresh: 'Refresh wall',
       btn_clear: 'Clear class data', btn_stats: 'Refresh statistics', toggle: '中文' }
   };
@@ -733,7 +781,7 @@
     document.getElementById('gatePin').focus();
   }
 
-  /* 四项指标卡片：平均句长、从属标记密度、长句占比、后置扩展率 */
+  /* 四项指标卡片：平均句长、从属标记密度、长句占比、分支扩展率 */
   function metricCards4(r) {
     var items = [
       { n: r.units, l: '词数 / 字数' },
@@ -741,7 +789,7 @@
       { n: fmt(r.avgLen), l: '平均句长', hl: true },
       { n: fmt(r.subordDensity), l: '从属标记密度（' + r.subordCount + ' 个）', hl: true },
       { n: fmt(r.longRatio) + '%', l: '长句占比（' + r.longCount + ' 句）' },
-      { n: fmt(r.postExpRate), l: '后置扩展率（' + r.postExpCount + ' 处）' }
+      { n: fmt(r.postExpRate), l: '分支扩展率（' + r.postExpCount + ' 处）' }
     ];
     var html = '<div class="metric-grid">' + items.map(function (m) {
       return '<div class="metric' + (m.hl ? ' hl' : '') + '"><div class="num">' + m.n + '</div><div class="lbl">' + m.l + '</div></div>';
@@ -889,7 +937,7 @@
     });
     out += '<h3>六段中文平均句长对照</h3>' + bars(rows);
     out += '<p class="subtitle">B 组英译对照（化简为繁后）：平均句长 ' + fmt(mean(enAvg)) + ' 词、从属标记密度 ' +
-      fmt(mean(enSub)) + '、长句占比 ' + fmt(mean(enLong)) + '%、后置扩展率 ' + fmt(mean(enPost)) +
+      fmt(mean(enSub)) + '、长句占比 ' + fmt(mean(enLong)) + '%、分支扩展率 ' + fmt(mean(enPost)) +
       '。同一段意思，译成英语后句子变长、从属标记变多——这就是“化简为繁”。</p>';
     $('resultB').innerHTML = out;
   });
@@ -1339,6 +1387,109 @@
     }
   }
   $('btnRefreshStats').addEventListener('click', loadStats);
+
+  /* ================= 9. 繁复指数模型 ================= */
+  function modelLevelText(level) {
+    return level === '简短' ? '简短 (Concise)' : level === '适中' ? '适中 (Moderate)' : '繁复 (Complex)';
+  }
+  function modelCards(r, lang) {
+    var m = A.complexityIndex(r, lang);
+    var html = '<div class="metric-grid">' +
+      '<div class="metric hl"><div class="num">' + fmt(m.index) + '</div><div class="lbl">繁复指数（0–100）</div></div>' +
+      '<div class="metric hl"><div class="num">' + esc(modelLevelText(m.level)) + '</div><div class="lbl">分级</div></div>' +
+      '<div class="metric"><div class="num">' + fmt(m.lenScore) + '</div><div class="lbl">句长分（45%）</div></div>' +
+      '<div class="metric"><div class="num">' + fmt(m.subScore) + '</div><div class="lbl">从属密度分（30%）</div></div>' +
+      '<div class="metric"><div class="num">' + fmt(m.longScore) + '</div><div class="lbl">长句占比分（25%）</div></div>' +
+      '<div class="metric"><div class="num">' + fmt(m.branchScore) + '</div><div class="lbl">分支方向（不计入总分）</div></div>' +
+      '</div>';
+    html += '<p class="subtitle">四项指标：平均句长 ' + fmt(r.avgLen) + '、从属标记密度 ' + fmt(r.subordDensity) +
+      '、长句占比 ' + fmt(r.longRatio) + '%、分支扩展率 ' + fmt(r.postExpRate) + '。</p>';
+    return html;
+  }
+  function modelGroupIndex(items) {
+    var rs = items.map(function (t) { return A.analyzeText(t.text, t.lang); });
+    var avg = {
+      avgLen: mean(rs.map(function (r) { return r.avgLen; })),
+      subordDensity: mean(rs.map(function (r) { return r.subordDensity; })),
+      longRatio: mean(rs.map(function (r) { return r.longRatio; })),
+      postExpRate: mean(rs.map(function (r) { return r.postExpRate; }))
+    };
+    return { avg: avg, m: A.complexityIndex(avg, items[0].lang) };
+  }
+  function renderModelRef() {
+    var groups = [
+      { label: 'A 组英文原句（4 句）', items: A_ITEMS.map(function (it) { return it.texts[0]; }) },
+      { label: 'B 组中文原文（6 段）', items: B_ITEMS.map(function (it) { return { text: it.zh, lang: 'zh' }; }) },
+      { label: 'B 组英译（6 段）', items: B_ITEMS.map(function (it) { return { text: it.en, lang: 'en' }; }) },
+      { label: 'C1 英文原文（5 句）', items: C1_PAIRS.map(function (p) { return { text: p.en, lang: 'en' }; }) },
+      { label: 'C1 汉译（5 句）', items: C1_PAIRS.map(function (p) { return { text: p.zh, lang: 'zh' }; }) }
+    ];
+    var computed = groups.map(function (g) {
+      var r = modelGroupIndex(g.items);
+      return { label: g.label, avg: r.avg, m: r.m };
+    });
+    var rows = computed.map(function (c) {
+      return '<tr><td>' + esc(c.label) + '</td><td>' + fmt(c.avg.avgLen) + '</td><td>' + fmt(c.avg.subordDensity) +
+        '</td><td>' + fmt(c.avg.longRatio) + '%</td><td>' + fmt(c.avg.postExpRate) + '</td><td><strong>' +
+        fmt(c.m.index) + '</strong></td><td>' + esc(modelLevelText(c.m.level)) + '</td></tr>';
+    }).join('');
+    var bUp = computed[2].m.index > computed[1].m.index;
+    var cDown = computed[3].m.index > computed[4].m.index;
+    $('modelRefTable').innerHTML = '<div style="overflow-x:auto;"><table class="wall"><thead><tr>' +
+      '<th>参照组</th><th>平均句长</th><th>从属密度</th><th>长句占比</th><th>分支率</th><th>繁复指数</th><th>分级</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<p class="subtitle">A 组英文 ' + fmt(computed[0].m.index) + ' 分（繁复）&gt; B 组英译 ' + fmt(computed[2].m.index) +
+      ' 分 &gt; B 组中文 ' + fmt(computed[1].m.index) + ' 分 &gt; C1 汉译 ' + fmt(computed[4].m.index) +
+      ' 分（简短）：英文繁复、中文简短；' +
+      (bUp ? 'B 组汉译英指数上升（化简为繁）' : 'B 组汉译英指数未上升') + '，' +
+      (cDown ? 'C1 组英译汉指数下降（化繁为简）' : 'C1 组英译汉指数未下降') + '。</p>';
+  }
+  $('btnModelRef').addEventListener('click', renderModelRef);
+  renderModelRef();
+
+  $('btnModelSingle').addEventListener('click', function () {
+    var text = $('modelText').value;
+    var lang = document.querySelector('input[name="modelLang"]:checked').value;
+    if (!text.trim()) {
+      $('modelSingleResult').innerHTML = '<p class="msg err">请先粘贴一段文本。</p>';
+      return;
+    }
+    var r = A.analyzeText(text, lang);
+    $('modelSingleResult').innerHTML = modelCards(r, lang);
+  });
+
+  $('btnModelPair').addEventListener('click', function () {
+    var enText = $('modelPairEn').value;
+    var zhText = $('modelPairZh').value;
+    var dir = document.querySelector('input[name="modelDir"]:checked').value;
+    if (!enText.trim() || !zhText.trim()) {
+      $('modelPairResult').innerHTML = '<p class="msg err">请把英文和中文两边都贴上。</p>';
+      return;
+    }
+    var re = A.analyzeText(enText, 'en');
+    var rz = A.analyzeText(zhText, 'zh');
+    var me = A.complexityIndex(re, 'en');
+    var mz = A.complexityIndex(rz, 'zh');
+    var diff = me.index - mz.index;
+    var verdict = '';
+    var good = false;
+    if (dir === 'en2zh') {
+      if (diff > 5) { verdict = '英文 ' + fmt(me.index) + ' 分 → 中文 ' + fmt(mz.index) + ' 分，下降 ' + fmt(diff) + ' 分：做到了化繁为简。'; good = true; }
+      else if (diff < -5) { verdict = '英文 ' + fmt(me.index) + ' 分 → 中文 ' + fmt(mz.index) + ' 分，反而上升 ' + fmt(-diff) + ' 分：没有变简单，再看看是不是直译保留了英文结构。'; }
+      else { verdict = '英文 ' + fmt(me.index) + ' 分，中文 ' + fmt(mz.index) + ' 分，相差不到 5 分：繁简程度接近。'; }
+    } else {
+      if (diff > 5) { verdict = '中文 ' + fmt(mz.index) + ' 分 → 英文 ' + fmt(me.index) + ' 分，上升 ' + fmt(diff) + ' 分：做到了化简为繁。'; good = true; }
+      else if (diff < -5) { verdict = '中文 ' + fmt(mz.index) + ' 分 → 英文 ' + fmt(me.index) + ' 分，反而下降 ' + fmt(-diff) + ' 分：没有变繁复，再看看是不是拆得太碎。'; }
+      else { verdict = '中文 ' + fmt(mz.index) + ' 分，英文 ' + fmt(me.index) + ' 分，相差不到 5 分：繁简程度接近。'; }
+    }
+    var html = '<h3>英文</h3>' + modelCards(re, 'en');
+    html += '<h3>中文</h3>' + modelCards(rz, 'zh');
+    html += '<div class="note' + (good ? ' green' : '') + '"><strong>对照结论：</strong>' + esc(verdict) + '</div>';
+    html += '<p class="subtitle">四项指标变化：平均句长 ' + fmt(re.avgLen) + ' 词 → ' + fmt(rz.avgLen) + ' 字；从属标记密度 ' +
+      fmt(re.subordDensity) + ' → ' + fmt(rz.subordDensity) + '；长句占比 ' + fmt(re.longRatio) + '% → ' +
+      fmt(rz.longRatio) + '%；分支扩展率 ' + fmt(re.postExpRate) + ' → ' + fmt(rz.postExpRate) + '。（英文按词计、中文按字计，只作量级对照。）</p>';
+    $('modelPairResult').innerHTML = html;
+  });
 
   /* ================= 初始化 ================= */
   renderHyps();

@@ -15,10 +15,10 @@
 * 中文按最长匹配扫描（沿用 analyze.js 的做法）
 * - 长句占比：英文长句 = 词数 ≥25 词的句子，占比 = 长句数 ÷ 总句数 × 100；
 * 中文长句 = 字数 ≥30 字的句子，同理
-* - 后置扩展率：英文统计关系从句后置结构（名词 + that/which/who 引导的从句）
-* 出现次数 ÷ 总句数；中文统计“的”字前置定语结构（汉字 + 的 + 汉字）
-* 出现次数 ÷ 总句数
-* 英文后置扩展是近似统计：只看 that/which/who 前一个词，
+* - 分支扩展率：英文统计关系从句后置结构（名词 + that/which/who 引导的从句，
+* 向后扩展）出现次数 ÷ 总句数；中文统计“的”字前置定语结构（汉字 + 的 + 汉字，
+* 向前扩展）出现次数 ÷ 总句数
+* 英文分支扩展是近似统计：只看 that/which/who 前一个词，
 * 若前一个词是常见动词（如 said/know/think/see/find/demonstrate 等，
 * 含 be 动词）则视为宾语从句等非后置定语结构，不计；其余计 1 次。
 * 这样会把 "is that" 这类结构也排除在外，但仍可能把个别 that 宾语从句
@@ -26,6 +26,24 @@
 * - 通用连接词密度沿用 analyze.js 的中英文连接词表；中文表在原有 24 个
 * 基础上加“由于”（“尽管”原表已有，不重复计入），共 25 个。
 * - 空文本返回全 0；所有数值保留两位小数（round2）。
+*
+* 繁复指数模型（第 9 节 complexityIndex，2026-11-18 建）：
+* 把三项指标合成 0–100 的繁复指数，用来检测一段文本有多繁复、
+* 或对照一对译文验证化繁为简 / 化简为繁。
+* 归一化锚点（教材参照值）：句长分英文 (avgLen - 8) / 22 * 100
+* （Flesch 表：对话 8 词 = 0 分，科技英语 30 词 = 100 分），
+* 中文 (avgLen - 4) / 26 * 100（最佳 4 字 = 0 分，长句线 30 字 = 100 分）；
+* 从属密度分 = subordDensity / 8 * 100；长句占比分 = longRatio 本身。
+* 权重：句长 45%、从属密度 30%、长句占比 25%。
+* 分档：index < 40 简短；<= 70 适中；> 70 繁复。
+* 分支扩展分 = postExpRate / 2 * 100，只作“分支方向”展示，不计入总分：
+* 它只数 that/which/who 引导的关系从句，B 组 6 句英译里一句也没有
+* （用的是分词和介词短语），得分是 0；放进总分会把英译拉低、连方向都反了
+* （实测：含分支分时 B 组英译 43.77 < B 组中文 47.67，去掉后 51.06 > 47.6，方向才对）。
+* 去噪：每项分值封顶 100 分，极端长句（如 A1 parody 221 词）不会把指数冲爆；
+* 即使去掉 A1，A 组指数仍为 94.74，仍在繁复档。
+* 实测参照（test/ch4.mjs 复核）：A 组英文 92.79 繁复；B 组中文 47.6 适中；
+* B 组英译 51.06 适中；C1 英文原文 44.62 适中；C1 汉译 25.61 简短。
 */
 (function (root, factory) {
 var api = factory();
@@ -60,7 +78,7 @@ var ZH_SUBORD = [
 '因为', '所以', '虽然', '但是', '如果', '而且', '然而', '于是', '由于', '尽管'
 ];
 
-// 后置扩展近似口径：that/which/who 前一个词若是这些常见动词则不计
+// 分支扩展近似口径：that/which/who 前一个词若是这些常见动词则不计
 var VERB_BEFORE_REL = {
 said: 1, say: 1, says: 1, know: 1, knows: 1, knew: 1,
 think: 1, thinks: 1, thought: 1, see: 1, sees: 1, saw: 1,
@@ -140,7 +158,7 @@ var w = s.match(/[A-Za-z]+(?:['-][A-Za-z]+)*/g) || [];
 if (w.length >= 25) longCount++;
 });
 
-// 后置扩展率（近似口径）：逐句扫描 that/which/who，前一词为常见动词则不计
+// 分支扩展率（近似口径）：逐句扫描 that/which/who，前一词为常见动词则不计
 var postExp = 0;
 rawSentences.forEach(function (s) {
 var ws = (s.match(/[A-Za-z]+(?:['-][A-Za-z]+)*/g) || []).map(function (w) { return w.toLowerCase();});
@@ -222,11 +240,37 @@ if (!text) return emptyResult();
 return lang === 'zh'? analyzeZh(text): analyzeEn(text);
 }
 
+function clamp100(n) {
+return Math.max(0, Math.min(100, n));
+}
+
+// 繁复指数模型：输入 analyzeText 的结果对象与语言，返回各分项与总指数。
+// 分项先 round2 再加权，使页面上显示的分项与总指数能互相验算。
+function complexityIndex(r, lang) {
+var lenScore = round2(lang === 'zh'
+? clamp100((r.avgLen - 4) / 26 * 100)
+: clamp100((r.avgLen - 8) / 22 * 100));
+var subScore = round2(clamp100(r.subordDensity / 8 * 100));
+var longScore = round2(clamp100(r.longRatio));
+var branchScore = round2(clamp100(r.postExpRate / 2 * 100));
+var index = round2(lenScore * 0.45 + subScore * 0.30 + longScore * 0.25);
+var level = index < 40 ? '简短' : (index <= 70 ? '适中' : '繁复');
+return {
+lenScore: lenScore,
+subScore: subScore,
+longScore: longScore,
+branchScore: branchScore,
+index: index,
+level: level
+};
+}
+
 return {
 EN_CONNECTIVES: EN_CONNECTIVES,
 ZH_CONNECTIVES: ZH_CONNECTIVES,
 EN_SUBORD: EN_SUBORD,
 ZH_SUBORD: ZH_SUBORD,
-analyzeText: analyzeText
+analyzeText: analyzeText,
+complexityIndex: complexityIndex
 };
 });
