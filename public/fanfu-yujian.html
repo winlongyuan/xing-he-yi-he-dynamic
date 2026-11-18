@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>繁复与简短 · 课堂数据互动实验室（动态版）| 英汉语言对比数据工程 第四章</title>
+<style>
+  :root {
+    --ink: #1c2b3a;
+    --brand: #14557e;
+    --brand-dark: #0e3d5c;
+    --accent: #c96a1b;
+    --bg: #f4f7fa;
+    --card: #ffffff;
+    --line: #d7e0e8;
+    --muted: #5a6b7a;
+    --good: #1e7d4f;
+    --bad: #b3261e;
+    --bar-bg: #e8eef3;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header.topbar {
+    background: var(--brand-dark);
+    color: #fff;
+    padding: 28px 20px 22px;
+    text-align: center;
+  }
+  header.topbar h1 { margin: 0 0 8px; font-size: 1.7rem; line-height: 1.4; }
+  header.topbar p { margin: 4px 0; opacity: 0.92; font-size: 1rem; }
+  header.topbar a.back-link { color: #fff; }
+  .topbar-row {
+    display: flex; justify-content: center; align-items: center;
+    gap: 14px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .lang-toggle {
+    background: #fff; color: var(--brand-dark); border: none;
+    font-size: 1rem; font-weight: 700; padding: 8px 18px;
+    border-radius: 999px; cursor: pointer;
+  }
+  .backend-status {
+    font-size: 0.95rem; background: rgba(255,255,255,0.14);
+    padding: 6px 14px; border-radius: 999px;
+  }
+  .backend-status .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .dot.ok { background: #58d68d; }
+  .dot.warn { background: #f5b041; }
+  nav.mainnav {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--brand); color: #fff;
+    display: flex; flex-wrap: wrap; justify-content: center;
+    padding: 0 8px;
+  }
+  nav.mainnav a {
+    color: #fff; text-decoration: none; font-size: 1rem;
+    padding: 12px 14px; display: block;
+  }
+  nav.mainnav a:hover { background: var(--brand-dark); }
+  nav.coursenav {
+    background: #fdf6ec; color: var(--ink);
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 8px; padding: 12px 8px; border-bottom: 1px solid var(--line);
+    font-size: 1rem;
+  }
+  nav.coursenav span { font-weight: 700; color: var(--accent); }
+  nav.coursenav a {
+    color: var(--brand-dark); text-decoration: none; font-weight: 700;
+    padding: 6px 16px; border: 1.5px solid var(--brand); border-radius: 999px;
+    background: #fff;
+  }
+  nav.coursenav a:hover { background: var(--brand); color: #fff; }
+  main { max-width: 1080px; margin: 0 auto; padding: 20px 16px 60px; }
+  section.card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 24px 22px; margin-bottom: 26px;
+  }
+  section.card h2 {
+    margin: 0 0 6px; font-size: 1.45rem; color: var(--brand-dark);
+    border-bottom: 3px solid var(--accent); padding-bottom: 8px;
+  }
+  section.card h3 { margin: 22px 0 8px; font-size: 1.15rem; color: var(--brand); }
+  .subtitle { color: var(--muted); font-size: 0.98rem; margin: 0 0 14px; }
+  .note {
+    background: #fdf6ec; border-left: 5px solid var(--accent);
+    padding: 12px 16px; border-radius: 6px; margin: 14px 0; font-size: 0.98rem;
+  }
+  .note.blue { background: #eef5fb; border-left-color: var(--brand); }
+  .note.green { background: #edf7f1; border-left-color: var(--good); }
+  .btn {
+    background: var(--brand); color: #fff; border: none; cursor: pointer;
+    font-size: 1.05rem; font-weight: 700; padding: 12px 24px;
+    border-radius: 8px; margin: 6px 6px 6px 0;
+  }
+  .btn:hover { background: var(--brand-dark); }
+  .btn.secondary { background: #e8eef3; color: var(--brand-dark); }
+  .btn.warn { background: var(--bad); }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn.small { font-size: 0.95rem; padding: 8px 16px; }
+  input[type="text"], textarea, select {
+    font-size: 1.05rem; padding: 10px 12px; border: 1.5px solid var(--line);
+    border-radius: 8px; width: 100%; font-family: inherit;
+  }
+  textarea { min-height: 120px; resize: vertical; }
+  label { font-weight: 700; display: block; margin: 12px 0 6px; }
+  .radio-row { display: flex; gap: 20px; align-items: center; margin: 6px 0; }
+  .radio-row label { display: inline; font-weight: 400; margin: 0; }
+  .text-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 12px 0; }
+  .text-cols.two { grid-template-columns: repeat(2, 1fr); }
+  .text-card {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 14px;
+    background: #fbfcfe;
+  }
+  .text-card .tag {
+    display: inline-block; font-size: 0.85rem; font-weight: 700;
+    background: var(--brand); color: #fff; border-radius: 999px; padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .text-card .tag.zh { background: var(--accent); }
+  .text-card p { margin: 6px 0; }
+  .text-card .en-text { font-size: 1.02rem; }
+  .metric-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0;
+  }
+  .metric {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 10px;
+    text-align: center; background: #fff;
+  }
+  .metric .num { font-size: 1.6rem; font-weight: 800; color: var(--brand-dark); line-height: 1.2; }
+  .metric .lbl { font-size: 0.92rem; color: var(--muted); margin-top: 2px; }
+  .metric.hl { border-color: var(--accent); background: #fdf6ec; }
+  .metric.hl .num { color: var(--accent); }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 64px; gap: 10px; align-items: center; margin: 8px 0; font-size: 0.98rem; }
+  .bar { height: 22px; background: var(--bar-bg); border-radius: 5px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--brand); border-radius: 5px; min-width: 2px; }
+  .bar > i.orange { background: var(--accent); }
+  .bar > i.green { background: var(--good); }
+  .bar-val { text-align: right; font-weight: 700; }
+  details { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  summary { cursor: pointer; font-weight: 700; color: var(--brand); font-size: 1.05rem; }
+  table.wall { width: 100%; border-collapse: collapse; font-size: 0.98rem; margin-top: 10px; }
+  table.wall th, table.wall td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+  table.wall th { background: #eef5fb; }
+  .vote-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .quiz-opt {
+    display: block; width: 100%; text-align: left; margin: 8px 0;
+    background: #fbfcfe; border: 1.5px solid var(--line); color: var(--ink);
+    font-size: 1.02rem; padding: 12px 16px; border-radius: 8px; cursor: pointer;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--brand); }
+  .quiz-opt:disabled { cursor: default; opacity: 0.75; }
+  .quiz-opt.correct { border-color: var(--good); background: #edf7f1; }
+  .quiz-opt.wrong { border-color: var(--bad); background: #fdecea; }
+  .explain { font-size: 0.98rem; margin: 6px 0 14px; display: none; }
+  .explain.show { display: block; }
+  .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 12px 0; }
+  footer { text-align: center; color: var(--muted); font-size: 0.92rem; padding: 10px 16px 40px; }
+  .msg { margin: 10px 0; font-weight: 700; }
+  .msg.ok { color: var(--good); }
+  .msg.err { color: var(--bad); }
+  .chain-steps { margin: 10px 0; }
+  .chain-steps p { margin: 4px 0; }
+  @media (max-width: 760px) {
+    body { font-size: 17px; }
+    .text-cols, .text-cols.two { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+    .bar-row { grid-template-columns: 110px 1fr 56px; }
+    section.card { padding: 18px 14px; }
+    nav.mainnav a { padding: 10px 8px; font-size: 0.95rem; }
+  }
+  /* 课堂口令门：未解锁时隐藏全部课件内容，只显示口令卡 */
+  body.locked header, body.locked nav, body.locked main { display: none; }
+  .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .gate-card { max-width: 480px; width: 100%; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08); }
+  .gate-card h1 { font-size: 1.35rem; margin: 0 0 8px; }
+  .gate-card p { color: var(--muted); }
+  .gate-card label { display: block; font-weight: 700; margin: 14px 0 6px; }
+  .gate-card input { width: 100%; box-sizing: border-box; font-size: 1.05rem; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 8px; }
+  .gate-card .btn { margin-top: 14px; }
+</style>
+</head>
+<body class="locked">
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <h1>繁复与简短 · 课堂数据互动实验室</h1>
+    <p>《英汉语言对比数据工程》第四章 · 动态版</p>
+    <p>请输入课堂口令进入实验室（口令由老师在课上公布）。</p>
+    <form id="gateForm">
+      <label for="gatePin">课堂口令</label>
+      <input type="password" id="gatePin" autocomplete="off" placeholder="请输入课堂口令">
+      <button class="btn" id="gateBtn" type="submit">进入实验室</button>
+      <p class="msg" id="gateMsg"></p>
+    </form>
+  </div>
+</div>
+
+<header class="topbar">
+  <h1>繁复与简短 · 课堂数据互动实验室</h1>
+  <p>Complex vs. Simplex — 《英汉语言对比数据工程》第四章</p>
+  <p>教材：连淑能《英汉对比研究》第四章（第 89–103 页） · 适用：翻译专业 / 智能翻译工程</p>
+  <p><a class="back-link" href="index.html">← 第三章：形合与意合</a></p>
+  <div class="topbar-row">
+    <button class="lang-toggle" id="langToggle" type="button">EN</button>
+    <span class="backend-status" id="backendStatus"><span class="dot warn"></span>正在连接云端数据库…</span>
+  </div>
+</header>
+
+<nav class="mainnav">
+  <a href="#theory" data-i18n="nav_theory">理论导读</a>
+  <a href="#lab" data-i18n="nav_lab">数据实验室</a>
+  <a href="#mine" data-i18n="nav_mine">学生动手</a>
+  <a href="#verify" data-i18n="nav_verify">验证环节</a>
+  <a href="#discuss" data-i18n="nav_discuss">课堂讨论</a>
+  <a href="#quiz" data-i18n="nav_quiz">课堂小测</a>
+  <a href="#guide" data-i18n="nav_guide">教师指南</a>
+  <a href="#stats" data-i18n="nav_stats">教师统计</a>
+</nav>
+
+<nav class="coursenav">
+  <span>章节导航：</span>
+  <a href="index.html">第三章 形合与意合</a>
+  <span>|</span>
+  <span>第四章 繁复与简短（本章）</span>
+</nav>
+
+<main>
+
+<!-- ============ 1. 理论导读 ============ -->
+<section class="card" id="theory">
+  <h2 data-i18n="sec_theory">1 · 理论导读</h2>
+  <p class="subtitle">先读懂概念，再用数据验证。Theory first, then verify with data.</p>
+
+  <h3>结论一 · 英语以从属结构为最重要特点，句子繁复冗长（书 89 页）</h3>
+  <p>“从属结构（subordination）是现代英语最重要的特点之一。”从句可以层层环扣，短语往往不短，书面语句子常常显得又繁又长，有的句子可长达 100 至 200 个单词，甚至长至整个大段。</p>
+  <p>英语句子长而复杂的原因是连接手段丰富、成分可无限附加（书 89–90 页）：介词（词组）、连词、关系代词、关系副词、连接代词、连接副词、非谓语动词（词组）、词的形态变化；能充当句子成分的有长短几乎无限制的短语和从句，从句中还可以有从句；再加上并列成分、附加成分（同位语、插入语、独立成分），尤其是修饰成分；主谓核心协调（S-V concord）控制全句，形态变化约束，连接手段连接词语和从句，代词前呼后应，使冗长句子不致涣散。</p>
+  <div class="note blue">
+    F. Crews（1974: 88，书 89 页引）："subordination, the placing of certain elements in modifying roles, is a fundamental principle of writing"。
+  </div>
+
+  <h3>结论二 · 英语“楼房建筑法”，汉语“流水记事法”（书 90、93 页）</h3>
+  <p>英语句子一般有完整的结构，许多有关的成分通过各种表示关系和连接的手段组成关系联结（conjunctive nexus），直接或间接地黏附在这个句子结构的里外、前后、左右或中间，整个句子成了庞大复杂的“高楼大厦”。汉语词语的先后次序一般是按照时间顺序和事理关系来排列的，常用分句或流水句来逐层叙述思维的各个过程。</p>
+  <p>相比之下，汉语常用散句、松句、紧缩句、省略句、流水句、并列句（coordination）或并列形式的复句（composite sentence），以中短句居多，最佳词组或句子的长度一般为 4 至 12 字。书面语虽也用长句，字数较多，结构较复杂，但常用标点或虚词把句子切开，与英语相比，还属短句。没有标点符号的一气呵成的类似英语的那种长句在汉语里是不正常的（例如本句）。汉语句子多数显得结构简化，无拖沓、盘错之感，“甚至有些西洋人看见了中国作品的译文，觉得简短可爱。”（书 93 页）</p>
+  <p>汉语没有形态变化，少用甚至不用关联词，靠语序和助词表达关系（书 93 页）。严格说来，汉语没有像英语那样的主语从句、宾语从句、表语从句、定语从句、同位语从句等语法概念；汉语多紧缩句、松散句、省略句、无主句，少用虚词（书 93 页）。</p>
+
+  <h3>结论三 · 英语 right-branching，汉语 left-branching（书 93–95 页）</h3>
+  <p>英语修饰语、插入语可以后置，又有关系词与被修饰语连接，句子可以不断向句尾扩展、延伸；还常用先行代词“it”及其他预指性代词，把真正的主语或宾语移到后面，形成句子的末端重量（end-weight）。英语是句首封闭、句尾开放（right-branching）。</p>
+  <p>汉语定语只能放在前边，扩展的长度和程度受到种种限制；汉语句子只能逆线性向前延伸（reversed linear expansion），句子长度大大不如英语。汉语是句首开放、句尾收缩（left-branching）。汉语定语修饰语一般前置，一个单句所能承受的修饰词语是很有有限的。一个名词前面不可“的”“的”（定语）不已，一个动词前后也不可“地”“地”（状语）或“得”“得”（补语）不已。一个单句若有两个以上稍长的修饰语，就显得“负荷过重”了。（书 93 页）</p>
+  <div class="note blue">
+    吕叔湘（1980: 156，书 94 页引）：“汉语的定语只能放在前边，就不便很长。定语长了，听的人（或读的人）老在惦着那个被修饰的名词，不知道你说的是什么人或什么东西，就要着急，也容易疲劳，搞得不好还会‘迷路’。英语的定语从句放在后头，说的是什么人或什么东西已经在前边交代了，听的人就不着急了，因此英语里的定语从句可以拉得很长。”
+  </div>
+  <p>思维与信息安排也相反（书 97 页）：英语突出关键词语（key word）或主题句（topic sentence），喜用主从结构，注重分析推理，直线性、有秩序、有层次地围绕主旨展开，信息安排往往采用“突显”语序（salient order）：由近及远，开门见山，一语破的，头短尾长。汉语注重话题，注重“意识流”，注重事理和先后顺序，常常采用非演绎式的、往往是领悟式的归纳型或螺旋式（circular / spiral / indirect）的思维模式，喜欢先讲来龙去脉，再说主题要旨，或先摆事实，再讲道理，信息安排常常按照“自然”语序（natural order）：由远及近，头长尾短，“意尽为界”，点到为止。</p>
+
+  <h3>书中参照值（数量化表述，逐字）</h3>
+  <div class="metric-grid">
+    <div class="metric"><div class="num">20 词</div><div class="lbl">专业作者写的英语句子平均长度（书 89 页）</div></div>
+    <div class="metric"><div class="num">25 词</div><div class="lbl">受过教育的人写的英语句子平均长度（书 89 页）</div></div>
+    <div class="metric"><div class="num">4–12 字</div><div class="lbl">汉语最佳词组或句子的长度（书 93 页）</div></div>
+    <div class="metric"><div class="num">100–200 词</div><div class="lbl">英语句子可长达（书 89 页）</div></div>
+  </div>
+  <p class="subtitle">总括句（书 89 页）：“总的看来，英语句子比汉语长得多。”</p>
+
+  <h3>Flesch 英语句子长度与文体统计表（Flesch 1946: 38，书 102 页）</h3>
+  <table class="wall">
+    <thead><tr><th>文体难度</th><th>平均句长</th></tr></thead>
+    <tbody>
+      <tr><td>Very easy（easy prose, mostly dialogue）</td><td>8 words or less</td></tr>
+      <tr><td>Easy</td><td>11 words</td></tr>
+      <tr><td>Fairly easy</td><td>14 words</td></tr>
+      <tr><td>Standard（average reader）</td><td>17 words</td></tr>
+      <tr><td>Fairly difficult（literary English）</td><td>21 words</td></tr>
+      <tr><td>Difficult</td><td>25 words</td></tr>
+      <tr><td>Very difficult（scientific English）</td><td>30 words or more</td></tr>
+    </tbody>
+  </table>
+  <p class="subtitle">用法：测出一段英文的平均句长，对照上表判断文体难度等级。H. J. Tichy（1967: 242，书 101 页）提醒："Variety in sentence length is much more important than average length"。</p>
+
+  <details>
+    <summary>备查引文（点击展开）</summary>
+    <p>王力（1984: 457，书 93 页）：“中国人作文虽讲究炼句，然其所谓炼句只是着重在造成一个典雅的句子，并非要扩充句子的组织。恰恰相反，中国人喜欢用四个字的短句子，以为这样可以使文章遒劲。由此看来，西洋人做文章把语言化零为整，中国人做文章几乎可以说是化整为零。”</p>
+    <p>E. Gowers（1987: 38，书 101 页）："The most prevalent disease in present-day writing is a tendency to say what one has to say in as complicated a way as possible. Instead of being simple, terse and direct, it is stilted, long-winded and circumlocutory; instead of choosing the simple word it prefers the unusual; instead of the plain phrase the cliché."</p>
+    <p>王力（1984: 458，书 102 页）：“固然，现代的思想已经不是四字短句所能表达的了；但是我们希望顺其自然，适可而止。如果把句子勉强拉长到和中国的语言结构不能相容的地步，就未免太过了。”</p>
+    <p>中国学生英语作文的通病（书 101 页）：受汉语影响，习惯采用并列式的单句、短句、断句、流水句，不习惯采用长短句交替、单复句相间的技巧，尤其不习惯采用繁复的主从结构，而这正是英语的一大特点。</p>
+  </details>
+</section>
+
+<!-- ============ 2. 数据实验室 ============ -->
+<section class="card" id="lab">
+  <h2 data-i18n="sec_lab">2 · 数据实验室</h2>
+  <p class="subtitle">点"分析一组 / 分析这对"，四项指标与柱状对比图立刻出现。Click to run the numbers.</p>
+
+  <div class="note blue">
+    <strong>统计口径（全课统一）：</strong>英文按词计，中文按字计；
+    平均句长 = 总词数（字数）÷ 句子数（英文按 . ! ? 切句，中文按 。？！；切句；连字符词计 1 词）；
+    从属标记密度 = 从属标记数 ÷ 总词数（字数）× 100；
+    长句占比 = 长句数 ÷ 总句数 × 100（英文长句 ≥25 词，中文长句 ≥30 字）；
+    后置扩展率 = 后置扩展结构数 ÷ 总句数（英文：名词 + that/which/who 引导的关系从句；
+    中文：“的”字前置定语结构，即汉字 + 的 + 汉字）。
+    英文后置扩展是近似口径：that/which/who 前一个词若是常见动词（如 said、know、think、see、find）则不计。
+  </div>
+
+  <h3>A 组 · 英文长句（书 90–92、99 页）</h3>
+  <p class="subtitle">四个英文长句，含各自的译文 / 说明。A1 是刻意仿造的 parody，不能代表常规句式。</p>
+  <div id="groupA"></div>
+  <button class="btn" id="btnAnalyzeA" type="button">分析 A 组</button>
+  <div id="resultA"></div>
+  <div class="note" id="parodyNote">正在计算 parody 句词数…</div>
+
+  <h3>B 组 · 中文短句（书 100–101 页）</h3>
+  <p class="subtitle">汉译英 6 例的中文原文；每段附英译对照。B1 出自鲁迅《药》，B3 出自吴承恩《西游记》。</p>
+  <div id="groupB"></div>
+  <button class="btn" id="btnAnalyzeB" type="button">分析 B 组</button>
+  <div id="resultB"></div>
+
+  <h3>C 组 · 英译汉改写对照（书 97–100 页）</h3>
+  <p class="subtitle">每对给“分析这对”按钮，展示英文原句与汉译的四项指标对照。</p>
+  <h3>C1 · 破句重组 5 例（书 97–98 页）</h3>
+  <div id="c1pairs"></div>
+  <h3>C2 · 分解、拆散和重组（书 98–99 页）</h3>
+  <div id="c2pairs"></div>
+  <p class="subtitle">第 3 例即 A4 狄更斯句，见 A 组。</p>
+  <h3>C3 · 先解剖、再改写：Simplicio 例（书 99–100 页）</h3>
+  <div id="c3block"></div>
+
+  <h3>三组汇总（实时计算）</h3>
+  <div id="summaryMeans"><p>正在计算…</p></div>
+  <div class="note">
+    <strong>教学提示 · 单位不同，别直接比大小：</strong>英文按“词”计、中文按“字”计，
+    A 组平均句长 108.25 词与 B 组 25.08 字不能直接等同，只能看量级与方向：
+    英文长句动辄 50–200 词，中文整段切分后平均句长仍只有 25 字上下。
+    另注意 B4 是一句 43 字的单句（长句占比 100%），说明教材例句本身也有长句，
+    “汉语短”说的是整体倾向，不是每一句都短。
+  </div>
+
+  <details>
+    <summary>词表（点击展开 / Word lists）</summary>
+    <p><strong>通用连接词 · 英文（28 个）：</strong>and, but, or, so, because, although, though, if, when, while, since, as, that, which, who, however, therefore, thus, moreover, furthermore, nevertheless, meanwhile, then, after, before, until, unless, whereas, despite</p>
+    <p><strong>通用连接词 · 中文（25 个）：</strong>因为、所以、但是、但、然而、可是、不过、虽然、尽管、即使、如果、假如、而且、并且、或者、还是、于是、然后、接着、同时、此外、就、才、却、而、由于</p>
+    <p><strong>从属标记 · 英文（12 个）：</strong>that, which, who, whom, whose, when, where, because, although, if, as, while</p>
+    <p><strong>从属标记 · 中文（10 个）：</strong>因为、所以、虽然、但是、如果、而且、然而、于是、由于、尽管</p>
+    <p class="subtitle">中文按最长匹配扫描："然而"计 1 次，不会拆成"然"+"而"；"但是"计 1 次，不会拆成"但"。提示：that 兼作指示代词与从句标记，数从属标记时注意。</p>
+  </details>
+</section>
+
+<!-- ============ 3. 学生动手 ============ -->
+<section class="card" id="mine">
+  <h2 data-i18n="sec_mine">3 · 学生动手 · 我的数据</h2>
+  <p class="subtitle">粘贴任意一段英文或中文，先选语言，再点分析；算完可以提交到班级汇总。Your text, your data.</p>
+
+  <label>第一步：选择语言 / Language</label>
+  <div class="radio-row">
+    <label><input type="radio" name="myLang" value="en" checked> 英文 English</label>
+    <label><input type="radio" name="myLang" value="zh"> 中文 Chinese</label>
+  </div>
+
+  <label for="myText">第二步：粘贴文本 / Paste your text</label>
+  <textarea id="myText" placeholder="例如：粘贴一段英语课文，或一段汉语新闻，再点下面的"分析我的文本"。"></textarea>
+  <div>
+    <button class="btn" id="btnAnalyzeMine" type="button" data-i18n="btn_analyze">分析我的文本</button>
+  </div>
+  <div id="myResult"></div>
+
+  <h3>第三步：提交到班级汇总</h3>
+  <label for="myNickname">昵称 / 学号后两位（用于班级数据墙，不收集真实姓名）</label>
+  <input type="text" id="myNickname" maxlength="20" placeholder="例如：小林 / 07">
+  <div>
+    <button class="btn" id="btnSubmitMine" type="button" data-i18n="btn_submit" disabled>提交到班级汇总</button>
+  </div>
+  <p class="msg" id="submitMsg"></p>
+
+  <h3>动手实验 · 儿歌延伸链（书 94–95 页）</h3>
+  <p class="subtitle">同一基本句，向不同方向延伸，看看能走多远。每点一步“延伸一步”，计数 +1。</p>
+  <div id="chains"></div>
+  <div class="note green" id="chainConclusion" style="display:none;">
+    <strong>对照结论：</strong>英文可向后无限延伸（11 行完整呈现，还能继续加）；汉语向后延伸 2 步即到头（“学术报告的效果很好”之后已很难再延伸下去），
+    汉语要延伸只能向前加修饰语（5 步）。这就是 right-branching 与 left-branching 的区别：英语句尾开放、可以一直往后长，汉语定语前置、向后长不出去。
+  </div>
+
+  <h3>班级数据墙（全班提交，实时同步）</h3>
+  <p>
+    <button class="btn small secondary" id="btnRefreshWall" type="button" data-i18n="btn_refresh">刷新数据墙</button>
+  </p>
+  <div id="wallSummary"><p>正在加载班级数据…</p></div>
+  <div style="overflow-x:auto;">
+    <table class="wall">
+      <thead>
+        <tr><th>昵称</th><th>语言</th><th>词数/字数</th><th>平均句长</th><th>从属密度</th><th>长句占比</th><th>提交时间</th></tr>
+      </thead>
+      <tbody id="wallBody"><tr><td colspan="7">正在加载…</td></tr></tbody>
+    </table>
+  </div>
+
+  <h3>教师清空（需 PIN）</h3>
+  <p class="subtitle">下课或新一轮实验前清空全班数据。清空后提交、投票、小测记录全部删除，不可恢复。</p>
+  <label for="clearPin">教师 PIN</label>
+  <input type="text" id="clearPin" maxlength="20" placeholder="输入教师 PIN" autocomplete="off">
+  <div>
+    <button class="btn warn" id="btnClear" type="button" data-i18n="btn_clear">清空班级数据</button>
+  </div>
+  <p class="msg" id="clearMsg"></p>
+</section>
+
+<!-- ============ 4. 验证环节 ============ -->
+<section class="card" id="verify">
+  <h2 data-i18n="sec_verify">4 · 验证环节 · 假设检验</h2>
+  <p class="subtitle">先看"数据怎么说"，再投票：证实 / 证伪 / 存疑。Vote after reading the data.</p>
+  <div id="hypotheses"></div>
+  <div class="note green">
+    <strong>引导总结：</strong>三组汇总数据显示，英文平均句长（A 组 108.25 词）远大于中文（B 组 25.08 字），
+    英文从属标记密度（A 组 6.08）也明显高于中文（B 组 0.74）；但中文不是"没有连接"，
+    而是连接手段更隐性、更依赖语序和语义——<strong>繁与简是程度差异，不是"有"与"无"的区别</strong>，
+    而且繁与简是相对的，与语境、题材、文体密切相关（书 101–102 页）。
+  </div>
+</section>
+
+<!-- ============ 5. 课堂讨论 ============ -->
+<section class="card" id="discuss">
+  <h2 data-i18n="sec_discuss">5 · 课堂讨论</h2>
+  <p class="subtitle">结合刚才的数据，小组讨论 3–5 分钟，派代表发言。Discuss in groups, then share.</p>
+  <ol>
+    <li>
+      <strong>Fowler 五条简明规则：怎样才算"写得好"？</strong>
+      <details><summary>讨论提示</summary>
+      <p>书 92 页 Fowler："Anyone who wishes to become a good writer should endeavour, before he allows himself to be tempted by more showy qualities, to be direct, simple, brief, vigorous and lucid." 五条规则：Prefer the familiar word to the far-fetched. Prefer the concrete word to the abstract. Prefer the single word to the circumlocution. Prefer the short word to the long. Prefer the Saxon word to the Romance. 讨论：为什么"简明"不等于"简单"？长句在什么情况下仍然必要？Gowers 说当代写作最流行的病是"把话说得越复杂越好"，你同意吗？</p></details>
+    </li>
+    <li>
+      <strong>为什么英译汉要"破句重组，化繁为简"，汉译英却要"组合成复合句，化简为繁"？</strong>
+      <details><summary>讨论提示</summary>
+      <p>两个方向正好相反，背后是同一种差异：英语重形合、靠显性连接手段把长句组织成"高楼大厦"；汉语重意合、靠语序和语义把意思拆成流水短句。英译汉要把英语长句按意思切开、按汉语"自然"语序重排；汉译英要把汉语分句、流水句组合成复合句或长句。结合 C1、C2 和 B 组 6 例的数据想一想：方向反了，依据却是一样的。</p></details>
+    </li>
+    <li>
+      <strong>长短句应该怎样交替？一篇好的英文文章应该全是长句吗？</strong>
+      <details><summary>讨论提示</summary>
+      <p>书 101–102 页：英汉修辞学都主张长短句交替、单复句相间。长句宜于阐述复杂观点、抒发细腻感情、描述具体细节，常见于书面语（政论文、科技论文、公文、小说叙述描写）；短句宜于叙述事物、说明情况、抒发感情、对比强调，常见于口语（日常会话、辩论、演讲、台词、杂文、广播稿、儿童文学、小说人物对话）。Tichy 说："Variety in sentence length is much more important than average length"。结合本课数据讨论：只看平均句长够不够？为什么变化比平均值更重要？</p></details>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ 6. 课堂小测 ============ -->
+<section class="card" id="quiz">
+  <h2 data-i18n="sec_quiz">6 · 评价 · 课堂小测</h2>
+  <p class="subtitle">三道题，点选项即时判对错；答完显示得分，可以提交到班级统计。3 questions, instant feedback.</p>
+  <div>
+    <button class="btn small secondary" id="btnToggleAllAnswers" type="button">查看全部答案</button>
+    <button class="btn small secondary" id="btnRetakeQuiz" type="button" style="display:none;">重答</button>
+  </div>
+  <p class="subtitle">提示：查看过答案的题，在判分时计为未答对；重答会清掉已展开的答案。</p>
+  <div id="quizBox"></div>
+  <div id="quizResult"></div>
+</section>
+
+<!-- ============ 7. 教师指南 ============ -->
+<section class="card" id="guide">
+  <h2 data-i18n="sec_guide">7 · 教师指南</h2>
+  <p class="subtitle">点击展开查看 45 分钟课堂流程、教学提示与课后作业。For the teacher.</p>
+  <details>
+    <summary>45 分钟课堂流程（点击展开）</summary>
+    <table class="wall">
+      <thead><tr><th>环节</th><th>时间</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>导入</td><td>5 分钟</td><td>用 parody 约 200 词长句开场：先让学生猜这句话有多少词，再公布实测 221 词，问"英语句子能长到什么程度"。</td></tr>
+        <tr><td>理论导读</td><td>10 分钟</td><td>讲清三个结论（从属结构繁复、楼房建筑法 vs 流水记事法、right-branching vs left-branching）与 Flesch 七档表。</td></tr>
+        <tr><td>数据实验</td><td>15 分钟</td><td>学生分组跑 A、B、C 三组语料，再做儿歌延伸链动手实验（英语向后、汉语向前、汉语向后三条链）；每人粘贴一段自选文本，提交到班级汇总。</td></tr>
+        <tr><td>验证讨论</td><td>10 分钟</td><td>对照"数据怎么说"投票 H1–H3，讨论三道讨论题（Fowler 五规则、破句重组与化简为繁、长短句交替）。</td></tr>
+        <tr><td>小测总结</td><td>5 分钟</td><td>三道小测即时反馈，总结"繁与简是相对的"，布置课后作业。</td></tr>
+      </tbody>
+    </table>
+    <h3>教学提示</h3>
+    <ul>
+      <li><strong>parody 句是刻意仿造、不能代表常规句式：</strong>A1 长句是作者为嘲弄不良文风而故意仿造的 parody，实测 221 词（书上说“约 200 词”），只能说明英语的繁复“能够达到何种程度”，不要拿它当英语的平均水平；常规参照值是专业作者 20 词、受过教育者 25 词。</li>
+      <li><strong>that 兼作指示代词与从句标记，数从属标记时注意：</strong>that 既可以是关系词、连接词，也可以是指示代词（如 "that of robbing the public" 里的 that 指代 undertaking），本课从属标记密度是按词形统计的近似口径；后置扩展率同样是近似口径（that/which/who 前一个词若是常见动词则不计），课堂上可据此讨论“近似口径”的局限。</li>
+      <li><strong>连字符词计 1 词：</strong>A4 狄更斯句里 link-lighted、umbrella-struggling、hackney-coach-jostling、patten-clinking 等连字符词各计 1 词，实测全句 88 词；如果按连字符拆开数，词数会更多。</li>
+      <li><strong>Supabase 休眠：</strong>免费项目闲置 7 天会暂停，上课前一天打开一次本页（或点一次刷新）即可唤醒；首次唤醒加载会慢几秒，属正常现象。</li>
+      <li><strong>网络不佳时：</strong>本地分析（数据实验室、学生动手分析、儿歌延伸链、小测判分）不依赖后端，断网也能做；只有提交、投票、数据墙、统计需要联网。</li>
+    </ul>
+    <h3>课后作业</h3>
+    <p>1. 用 Flesch 表测一段自选英文课文的平均句长，判断文体难度等级（对照七档表），写出实测词数、句数与档位。</p>
+    <p>2. 把一段汉语流水句译成英语，试试“化简为繁”：把分句组合成复合句或长句，加上 that、which、because 等从属标记，再用本页工具测一测译文的平均句长与从属标记密度，和中文原文对照。</p>
+  </details>
+</section>
+
+<!-- ============ 8. 教师统计 ============ -->
+<section class="card" id="stats">
+  <h2 data-i18n="sec_stats">8 · 教师统计视图</h2>
+  <p class="subtitle">全班数据汇总：平均密度、提交分布、投票分布、小测得分分布。Live class statistics.</p>
+  <p><button class="btn" id="btnRefreshStats" type="button" data-i18n="btn_stats">刷新统计</button></p>
+  <div id="statsBox"><p>点"刷新统计"查看全班数据。</p></div>
+</section>
+
+</main>
+
+<footer>
+  <p>《英汉语言对比数据工程》第四章《繁复与简短》· 课堂数据互动实验室（动态版）</p>
+  <p>例句来源：连淑能《英汉对比研究》第四章（第 89–103 页），例句、数字、译文均为教材原句；数据口径见"数据实验室"说明（英文按词计、中文按字计；后置扩展率为近似口径）；统计在浏览器内完成，提交结果存入班级数据库。</p>
+  <p>隐私说明：仅收集昵称 / 学号后两位与分析结果，不收集真实姓名、学号全号等个人信息；教师清空后数据不可恢复。</p>
+</footer>
+
+<script src="./fanfu-analyze.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.FanfuAnalyze;
+
+  /* ================= 数据（教材例句、数字、译文一律照摘要原样） ================= */
+  var A_ITEMS = [
+    { id: 'A1', title: 'A1 · 官方长句 parody（书 90 页，整句约 200 词）',
+      note: '（引自美国官方的一篇文章，原用以讽刺官场中流行的冗长句式；此句是作者为嘲弄不良文风而故意仿造的 parody，虽不能代表英语的常规句式，但也可以看出英语句子的“繁复”能够达到何种程度。）',
+      texts: [
+        { lang: 'en', label: '英文原句', text: "The present movement toward simplification of language and directness of statement in government writing and the elimination of jargon and unnecessary wordiness as well as the use of short, direct statements instead of long sentences which are difficult to understand because the reader is apt to get lost before he arrives, if he ever does, at the meaning intended by the writer, is a valuable attempt to achieve economy and intelligibility, for many pamphlets, instruction sheets, ordinary memoranda and assorted missives circulated through the War Department fail of their primary purpose through befogging their contents by use of pseudo-official phraseology which only the initiated can hope to understand and of which even they cannot be certain without reference either to the key works needed for translating them or to their own garbled and confused memories of dealing, usually without much success and always after a long period of time and travail, with similar kinds of wording in similar situations, so, though don't be too hopeful, for someone with unusual gifts and energy in applying them will manage triumphantly to misunderstand you no matter what you say or how you say it, try saying what you have to say as simply and as briefly as you can, and then after you've said it, stop saying it and don't say it any more." }
+      ] },
+    { id: 'A2', title: 'A2 · NATO 句（书 91–92 页）',
+      note: 'Quoted The Economist, from which the translation also is taken.',
+      texts: [
+        { lang: 'en', label: '英文原句', text: "NATO has expressed its fundamental change of policy as \"evolving in place of the overriding medium-term defence hypothesis to which all economic planning was functionally subordinate, an antithesis of balancing desiderata, such as the politico-strategical necessity against the economico-social possibility and further these two components against the need for a maximum of flexibility\"." },
+        { lang: 'en', label: '译文（Translation）', text: "What this really means is that, whereas a national defence programme has been taken hitherto as something imposed from above which could not be altered, now the military requirements of NATO will be made to match the economic achievements of the individual countries." }
+      ] },
+    { id: 'A3', title: 'A3 · Lancet 句（书 92 页）',
+      note: 'Quoted in The Lancet, from which the translation also is taken.',
+      texts: [
+        { lang: 'en', label: '英文原句', text: "Experiments are described which demonstrate that in normal individuals the lowest concentration in which sucrose can be detected by means of gustation differs from the lowest concentration in which sucrose (in the amount employed) has to be ingested in order to produce a demonstrable decrease in olfactory acuity and a noteworthy conversion of sensations interpreted as a desire for food into sensations interpreted as a satiety associated with ingestion of food." },
+        { lang: 'en', label: '译文（Translation）', text: "Experiments are described which demonstrate that a normal person can taste sugar in water in quantities not strong enough to interfere with his sense of smell or take away his appetite." }
+      ] },
+    { id: 'A4', title: 'A4 · Dickens 句（书 99 页）',
+      note: 'C. Dickens: David Copperfield',
+      texts: [
+        { lang: 'en', label: '英文原句', text: "But the mingled reality and mystery of the whole show, the influence upon me of the poetry, the lights, the music, the company, the smooth stupendous changes of glittering and brilliant scenery, were so dazzling, and opened up such illimitable regions of delight, that when I came out into the rainy street, at twelve o'clock at night, I felt as if I had come from the clouds, where I had been leading a romantic life for ages, to a bawling, splashing, link-lighted, umbrella-struggling, hackney-coach-jostling, patten-clinking, muddy, miserable world." },
+        { lang: 'zh', label: '汉译', text: "然而，整场演出既有现实感又有神秘感。诗歌、灯光、音乐、演员，舞台背景的变幻，和谐壮观，光彩夺目，华丽灿烂，这一切都感染了我，整个场面是这样的令人眼花缭乱、心旷神怡。午夜时分，我走出戏院来到雨淋淋的街上，感到刚才仿佛是在仙境中传奇般地生活了好久，而现在则已离开了这个仙境，来到了另外一个世界。这里是一片叫喊声，一阵阵飞溅开来的泥浆，一盏盏路灯，一把把拚来挤去的雨伞，一辆辆争先恐后的出租马车，一声声嗒嗒嗒嗒的木鞋声，一片泥泞，一片惨状。" }
+      ] }
+  ];
+
+  var B_ITEMS = [
+    { id: 'B1', title: 'B1 · 鲁迅《药》', zh: "老栓正在专心走路，忽然吃了一惊，远远地看见一条丁字街，明明白白横着。他便退了几步，寻找一家关着门的铺子，蹭进檐下，靠门立住了。", en: "Absorbed in his walking, Old Shuan was startled when he saw the cross road lying distinctly ahead of him. He walked back a few steps to stand under the eaves of a shop in front of its closed door." },
+    { id: 'B2', title: 'B2 · 农村社会（书 100–101 页）', zh: "因为距离远，又缺乏交通工具，农村社会是与外界隔绝的。这种隔绝状态，由于通讯工具不足，就变得更加严重了。", en: "The isolation of the rural world because of distance and the lack of transport facilities is compounded by the scarcity of information from the mass media." },
+    { id: 'B3', title: 'B3 · 吴承恩《西游记》', zh: "原来悟空手疾眼快，正在那混乱之时，他拔下一根毫毛，叫声“变！”就变成他的本相。", en: "As Sun Wukong was deft of hand and quick of eye, he plucked one of the hairs from his body in the midst of the fray and shouted \"Change!\" It changed into his own double." },
+    { id: 'B4', title: 'B4 · 六旬老人（书 100–101 页）', zh: "他这时已是将近六旬的人，一表人才，高个儿，眉目清秀，头发又多又黑，略带花白，恰好衬出他那堂堂的仪表。", en: "He was at this time in his late fifties, a tall, elegant man with good features and thick dark hair only sufficiently greying to add to the distinction of his appearance." },
+    { id: 'B5', title: 'B5 · 公园（书 100–101 页）', zh: "我们不知不觉地朝公园走去。公园就在人行桥那边，桥下很深的地方，汹涌的河水滚滚流过。", en: "Somehow our path took us toward the park, across the footbridge high above the rolling waters of the river." },
+    { id: 'B6', title: 'B6 · 浊水（书 100–101 页）', zh: "顷刻之间，滚滚的浊水像墙堵一般压了下来，一股脑儿连人带车都给冲走了。这情景，直到现在还印在我的脑海里。", en: "The image of a sudden wall of dark water carrying the man and his car away in an instant is still imprinted on my mind." }
+  ];
+
+  var C1_PAIRS = [
+    { id: 'C1-1', en: "In the doorway lay at least twelve umbrellas of all sizes and colors.", zh: "门口放着一堆雨伞，少说也有十二把，五颜六色，大小不一。", cmp: "门口放着至少有十二把五颜六色、大小不一的雨伞。" },
+    { id: 'C1-2', en: "There are many wonderful stories to tell about the places I visited and the people I met.", zh: "我访问了一些地方，也遇到了一些人。要谈起来，奇妙的事儿可多着哩。", cmp: "关于我所访问的一些地方和遇见的一些人有许多奇妙的故事可以讲。" },
+    { id: 'C1-3', en: "Can you answer a question which I want to ask and which is puzzling me?", zh: "我有一个问题弄不懂，想请教你，你能回答吗？", cmp: "你能回答一个使我弄不懂而又想问你的问题吗？" },
+    { id: 'C1-4', en: "If the man who was seen to take an umbrella from the City Church last Sunday evening does not wish to get into trouble, he will return the umbrella to No.10 Broad Street. He is well known.", zh: "上星期日傍晚，有人曾见某君在市教堂取走雨伞一把。取伞者如不愿卷入纠纷，还是将伞送至布罗德街十号为妙。此君为谁，尽人皆知。", cmp: "" },
+    { id: 'C1-5', en: "Gentlemen, I am ashamed to see men embarked on so great and glorious an undertaking, as that of robbing the public, so foolishly and weakly dissenting among themselves.", zh: "诸位先生，有些人正在干着一番光荣而伟大的事业，那就是掠夺大众。这时候，他们居然这么愚蠢，这么虚弱，在自己人中间发生内讧。对于这些，我真觉得丢脸。", cmp: "", source: "Fielding: Jonathan Wild" }
+  ];
+
+  var C2_PAIRS = [
+    { id: 'C2-1', en: "Many man-made substances are replacing certain natural materials because either the quantity of the natural product can not meet our ever-increasing requirements, or, more often, because the physical properties of the synthetic substance, which is the common name for man-made materials, have been chosen, and even emphasized, so that it would be of the greatest use in the fields in which it is to be applied.", zh: "人造材料通称为合成材料。许多人造材料正在代替某些天然材料，这或者是因为天然物产的数量不能满足日益增长的需要，或者更经常是由于人们选择了合成材料的一些物理性质并加以突出而造成的。因此，合成材料在拟用的领域中将具有极大的用途。" },
+    { id: 'C2-2', en: "Closely linked with this commitment is the new last paragraph of the preamble which reaffirms that principle of the Charter of the United Nations in accordance with which Member States must refrain from the use of force or the threat of force against the territorial integrity or political independence of any State and which declares that the establishment and the maintenance of international peace and security are to be promoted with the least diversion for armaments of the world's human and economic resources.", zh: "与这一承诺密切相关的是序言中新增的最后一段，它重申联合国宪章的一条原则，即会员国不得使用武力或武力威胁来侵犯任何国家的领土完整或政治独立，并且声明要尽量减少把世界人力及经济资源用于军备，以促进建立和维护国际和平和安全。" }
+  ];
+
+  var C3 = {
+    orig: "Oh, Simplicio, if I should succeed in convincing you of the artfulness — though it is no great artistry — of this author, I should rouse you to wonder — and also to indignation — when you discovered how he, covering his cunning with the veil of your naiveté and that of other mere philosophers, tries to insinuate himself into your good graces by gratifying your ear and puffing up your ambition, pretending to have convicted and silenced these trifling astronomers who wanted to assail the ineradicable inalterability of the Peripatetic heavens, and what is more, to have struck them dumb and overpowered them with their own weapons.",
+    rewrite: "Oh, Simplicio, I wish I could convince you of the artfulness — though it is no great artistry — of this author. He, covering his cunning with the veil of your naiveté and that of other mere philosophers, tries to insinuate himself into your graces. He regards these astronomers who wanted to assail the ineradicability and inalterability of the Peripatetic heavens as trifling only, and pretends to have convicted and silenced them, and what is more, to have struck them dumb and overpowers them with their own weapons. In this way he gratifies your ear and puffs up your ambition. When you discovered how he did this, I should rouse you to wonder — and also to indignation.",
+    zh: "啊，辛普利邱，但愿我能够说服你，使你看出这位作者的伎俩——虽然并不是怎样高明的伎俩。他利用你的天真和其他不懂天文学的哲学家的天真，为自己打掩护，企图博取你们的欢心。他把那些想要攻击逍遥学派天界的稳固性和不可动摇性的天文学家，说成是毫不足道的，并自命已经驳倒他们，使他们无辞以答；不但如此，他还自命用他们自己的武器驳得他们哑口无言，无力还击。他就是用这种伎俩使你觉得娓娓动听，并鼓起你的无名勇气，如果你一旦发现他是怎样做到这样的，我当会引起你的惶惑——并且使你感到愤慨。"
+  };
+
+  var CHAINS = [
+    { id: 'en', title: '链一 · 英语向后延伸（This is the house that Jack built，11 行）',
+      base: 'This is the farmer that sowed the corn,',
+      steps: [
+        'That kept the cock that crowed in the morn,',
+        'That waked the priest all shaven and shorn,',
+        'That married the man all tattered and torn,',
+        'That kissed the maiden all forlorn,',
+        'That milked the cow with the crumpled horn,',
+        'That tossed the dog',
+        'That worried the cat',
+        'That killed the rat',
+        'That ate the malt',
+        'That lay in the house that Jack built.'
+      ],
+      done: '英语向后延伸 10 步后仍可继续——理论上可以无限延伸（right-branching，句尾开放）。',
+      extra: '汉语对应儿歌（书 95 页）：杰克盖了那幢房子，／房子里堆放着麦芽，／麦芽让老鼠吃了，／老鼠叫老猫宰了。' },
+    { id: 'zhFwd', title: '链二 · 汉语向前延伸（学术报告，5 步）',
+      base: '学术报告。',
+      steps: [
+        '← 关于当代语言学研究动向的学术报告。',
+        '← 李教授关于当代语言学研究动向的学术报告。',
+        '← 你们到语言学院听了李教授关于当代语言学研究动向的学术报告。',
+        '← 我听说你们到语言学院听了李教授关于当代语言学研究动向的学术报告。',
+        '← 昨天我听说你们到语言学院听了李教授关于当代语言学研究动向的学术报告。'
+      ],
+      done: '汉语向前延伸 5 步：定语不断前置，句子越拉越长，听的人老惦着那个被修饰的名词，容易“迷路”——这就是汉语 left-branching、单句“负荷有限”。' },
+    { id: 'zhBack', title: '链三 · 汉语向后延伸（学术报告，2 步）',
+      base: '学术报告。',
+      steps: [
+        '学术报告的效果。',
+        '学术报告的效果很好。'
+      ],
+      done: '到此已很难再延伸下去了。',
+      tail: '到此已很难再延伸下去了。' }
+  ];
+
+  var HYPS = [
+    { id: 'H1', title: 'H1 · 英文平均句长显著大于中文（参照：英语 20–25 词 vs 汉语 4–12 字）',
+      dataSay: '实测：A 组 4 个英文长句平均句长 108.25 词（parody 句 221 词、NATO 句 53 词、Lancet 句 71 词、Dickens 句 88 词）；B 组 6 段中文平均句长 25.08 字。英文约为中文的 4.3 倍（单位不同：词 vs 字，只看量级与方向）。A4 狄更斯句汉译平均句长 47.75 字，仍远短于英文原句 88 词。' },
+    { id: 'H2', title: 'H2 · 英文从属标记密度高于中文',
+      dataSay: '实测：A 组英文从属标记密度平均 6.08（每 100 词），B 组中文平均 0.74（每 100 字），C 组汉译平均仅 0.36。英文从属标记密度约为中文的 8 倍。' },
+    { id: 'H3', title: 'H3 · 英文可向后无限延伸，中文向后延伸很快到头（学术报告例：向后延 2 次即到头）',
+      dataSay: '儿歌延伸链实测：英语向后延伸 10 步仍可继续（11 行完整呈现）；汉语“学术报告”向后延伸 2 步即到头（“学术报告的效果很好”之后很难再延伸）；汉语向前延伸则可达 5 步。' }
+  ];
+
+  var QUIZ = [
+    { q: 'Q1 · 前置修饰改写：下面哪一句更符合汉语习惯？原句：厦门是一座四季如春、风景如画、令人流连忘返的美丽的海岛城市。',
+      opts: ['A. 厦门是一座四季如春、风景如画、令人流连忘返的美丽的海岛城市。',
+             'B. 厦门是一座美丽的海岛城市，这里四季如春，风景如画，令人流连忘返。'],
+      answer: 1,
+      explain: '答案是 B。书 96 页：汉语译文前置修饰语太多时，“如果把句子分割重组，使之简短，则比较符合汉语的表达习惯”。A 句把三个修饰语全堆在“海岛城市”前面，单句“负荷过重”；B 句先点出主干，再用短句展开，符合汉语习惯。' },
+    { q: 'Q2 · 破句重组判断：英语原句 In the doorway lay at least twelve umbrellas of all sizes and colors. 下面哪个汉译更符合汉语习惯？',
+      opts: ['A. 门口放着一堆雨伞，少说也有十二把，五颜六色，大小不一。',
+             'B. 门口放着至少有十二把五颜六色、大小不一的雨伞。'],
+      answer: 0,
+      explain: '答案是 A（破句重组版）。书 97 页：“根据上述的英汉特点，英译汉时常常要破句重组，化繁为简”——把英语长句按意思切成几个汉语短句，按汉语“自然”语序重排。B 是“比较”直译版，把修饰语全堆进一句，不符合汉语习惯。' },
+    { q: 'Q3 · Flesch 文体判断：下面这句话共 43 词、1 个句子，平均句长 43 词，对照 Flesch 表属于哪一档？"What this really means is that, whereas a national defence programme has been taken hitherto as something imposed from above which could not be altered, now the military requirements of NATO will be made to match the economic achievements of the individual countries."',
+      opts: ['A. Standard（17 词）', 'B. Fairly difficult（21 词）', 'C. Difficult（25 词）', 'D. Very difficult（30 词以上）'],
+      answer: 3,
+      explain: '答案是 D。实测：这句话共 43 词、1 个句子，平均句长 43 词；对照 Flesch 表（书 102 页），30 words or more 属于 Very difficult（scientific English）一档。43 词远超 30 词的门槛，是典型的难懂长句——这正是 NATO 原句要“翻译”成这句大白话的原因。' }
+  ];
+
+  /* ================= i18n（切换导航、标题与按钮文字） ================= */
+  var I18N = {
+    zh: { nav_theory: '理论导读', nav_lab: '数据实验室', nav_mine: '学生动手', nav_verify: '验证环节',
+      nav_discuss: '课堂讨论', nav_quiz: '课堂小测', nav_guide: '教师指南', nav_stats: '教师统计',
+      sec_theory: '1 · 理论导读', sec_lab: '2 · 数据实验室', sec_mine: '3 · 学生动手 · 我的数据',
+      sec_verify: '4 · 验证环节 · 假设检验', sec_discuss: '5 · 课堂讨论', sec_quiz: '6 · 评价 · 课堂小测',
+      sec_guide: '7 · 教师指南', sec_stats: '8 · 教师统计视图',
+      btn_analyze: '分析我的文本', btn_submit: '提交到班级汇总', btn_refresh: '刷新数据墙',
+      btn_clear: '清空班级数据', btn_stats: '刷新统计', toggle: 'EN' },
+    en: { nav_theory: 'Theory', nav_lab: 'Data Lab', nav_mine: 'My Data', nav_verify: 'Verify',
+      nav_discuss: 'Discuss', nav_quiz: 'Quiz', nav_guide: 'Teacher Guide', nav_stats: 'Statistics',
+      sec_theory: '1 · Theory', sec_lab: '2 · Data Lab', sec_mine: '3 · Hands-on · My Data',
+      sec_verify: '4 · Verify · Hypotheses', sec_discuss: '5 · Discussion', sec_quiz: '6 · Quiz',
+      sec_guide: '7 · Teacher Guide', sec_stats: '8 · Class Statistics',
+      btn_analyze: 'Analyze my text', btn_submit: 'Submit to class wall', btn_refresh: 'Refresh wall',
+      btn_clear: 'Clear class data', btn_stats: 'Refresh statistics', toggle: '中文' }
+  };
+  var uiLang = 'zh';
+  function applyI18n() {
+    var dict = I18N[uiLang];
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n');
+      if (dict[k]) el.textContent = dict[k];
+    });
+    document.getElementById('langToggle').textContent = dict.toggle;
+  }
+  document.getElementById('langToggle').addEventListener('click', function () {
+    uiLang = uiLang === 'zh' ? 'en' : 'zh';
+    applyI18n();
+  });
+
+  /* ================= 工具 ================= */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmt(n) { return (Math.round(n * 100) / 100).toString(); }
+  function mean(arr) { return arr.length ? arr.reduce(function (s, x) { return s + x; }, 0) / arr.length : 0; }
+
+  async function api(path, opts) {
+    opts = opts || {};
+    var res = await fetch(path, {
+      method: opts.method || 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: opts.body === undefined ? undefined : JSON.stringify(opts.body)
+    });
+    var data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.error) || ('HTTP ' + res.status));
+    }
+    return data;
+  }
+
+  /* ================= 课堂口令门（服务器端验证 /api/gate） ================= */
+  var GATE_KEY = 'lab_gate_ok';
+  function bootAfterUnlock() {
+    checkBackend().then(function () {
+      loadWall();
+      loadVotes();
+    });
+  }
+  function unlockGate() {
+    document.body.classList.remove('locked');
+    var g = document.getElementById('gate');
+    if (g) g.remove();
+    try { sessionStorage.setItem(GATE_KEY, '1'); } catch (e) {}
+    bootAfterUnlock();
+  }
+  function initGate() {
+    var ok = false;
+    try { ok = sessionStorage.getItem(GATE_KEY) === '1'; } catch (e) {}
+    if (ok) {
+      document.body.classList.remove('locked');
+      var g0 = document.getElementById('gate');
+      if (g0) g0.remove();
+      bootAfterUnlock();
+      return;
+    }
+    document.getElementById('gateForm').addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      var pin = document.getElementById('gatePin').value.trim();
+      var msg = document.getElementById('gateMsg');
+      var btn = document.getElementById('gateBtn');
+      if (!pin) {
+        msg.textContent = '请先输入课堂口令。';
+        msg.className = 'msg err';
+        return;
+      }
+      btn.disabled = true;
+      msg.textContent = '正在验证…';
+      msg.className = 'msg';
+      try {
+        await api('/api/gate', { method: 'POST', body: { pin: pin } });
+        unlockGate();
+      } catch (e) {
+        msg.textContent = e.message || '口令不对，请重新输入';
+        msg.className = 'msg err';
+        document.getElementById('gatePin').value = '';
+        document.getElementById('gatePin').focus();
+        btn.disabled = false;
+      }
+    });
+    document.getElementById('gatePin').focus();
+  }
+
+  /* 四项指标卡片：平均句长、从属标记密度、长句占比、后置扩展率 */
+  function metricCards4(r) {
+    var items = [
+      { n: r.units, l: '词数 / 字数' },
+      { n: r.sentences, l: '句子数' },
+      { n: fmt(r.avgLen), l: '平均句长', hl: true },
+      { n: fmt(r.subordDensity), l: '从属标记密度（' + r.subordCount + ' 个）', hl: true },
+      { n: fmt(r.longRatio) + '%', l: '长句占比（' + r.longCount + ' 句）' },
+      { n: fmt(r.postExpRate), l: '后置扩展率（' + r.postExpCount + ' 处）' }
+    ];
+    var html = '<div class="metric-grid">' + items.map(function (m) {
+      return '<div class="metric' + (m.hl ? ' hl' : '') + '"><div class="num">' + m.n + '</div><div class="lbl">' + m.l + '</div></div>';
+    }).join('') + '</div>';
+    if (r.hits && r.hits.length) {
+      html += '<p class="subtitle">命中的连接词：' + r.hits.map(function (h) { return esc(h.word) + ' × ' + h.count; }).join('、') + '</p>';
+    } else {
+      html += '<p class="subtitle">命中的连接词：无</p>';
+    }
+    return html;
+  }
+
+  function bars(rows) {
+    var max = 0;
+    rows.forEach(function (r) { if (r.value > max) max = r.value; });
+    if (max === 0) max = 1;
+    return rows.map(function (r) {
+      var w = Math.max(1, Math.round((r.value / max) * 100));
+      return '<div class="bar-row"><span>' + esc(r.label) + '</span>' +
+        '<div class="bar"><i class="' + (r.cls || '') + '" style="width:' + w + '%"></i></div>' +
+        '<span class="bar-val">' + fmt(r.value) + '</span></div>';
+    }).join('');
+  }
+
+  function textCard(t) {
+    return '<div class="text-card"><span class="tag' + (t.lang === 'zh' ? ' zh' : '') + '">' + esc(t.label) + '</span>' +
+      '<p class="' + (t.lang === 'en' ? 'en-text' : '') + '">' + esc(t.text) + '</p></div>';
+  }
+
+  /* ================= 2. 数据实验室 ================= */
+  function renderGroupA() {
+    var html = '';
+    A_ITEMS.forEach(function (item) {
+      html += '<h3>' + esc(item.title) + '</h3>';
+      html += '<div class="text-cols' + (item.texts.length === 1 ? '' : ' two') + '">';
+      item.texts.forEach(function (t) { html += textCard(t); });
+      html += '</div>';
+      if (item.note) html += '<p class="subtitle">' + esc(item.note) + '</p>';
+    });
+    $('groupA').innerHTML = html;
+  }
+
+  function renderGroupB() {
+    var html = '';
+    B_ITEMS.forEach(function (item) {
+      html += '<h3>' + esc(item.title) + '</h3>';
+      html += '<div class="text-card"><span class="tag zh">中文原文</span><p>' + esc(item.zh) + '</p>' +
+        '<p class="subtitle">英译：' + esc(item.en) + '</p></div>';
+    });
+    $('groupB').innerHTML = html;
+  }
+
+  function renderCPairs() {
+    var html = '';
+    C1_PAIRS.forEach(function (p) {
+      html += '<h3>' + esc(p.id) + '</h3>';
+      html += '<div class="text-cols two">' + textCard({ lang: 'en', label: '英语原句', text: p.en }) +
+        textCard({ lang: 'zh', label: '汉译（破句重组）', text: p.zh }) + '</div>';
+      if (p.cmp) html += '<p class="subtitle">（比较：' + esc(p.cmp) + '）</p>';
+      if (p.source) html += '<p class="subtitle">' + esc(p.source) + '</p>';
+      html += '<button class="btn small" type="button" data-pair="' + p.id + '">分析这对</button>';
+      html += '<div id="pairResult-' + p.id + '"></div>';
+    });
+    $('c1pairs').innerHTML = html;
+    var html2 = '';
+    C2_PAIRS.forEach(function (p) {
+      html2 += '<h3>' + esc(p.id) + '</h3>';
+      html2 += '<div class="text-cols two">' + textCard({ lang: 'en', label: '英语原句', text: p.en }) +
+        textCard({ lang: 'zh', label: '汉译（分解、拆散和重组）', text: p.zh }) + '</div>';
+      html2 += '<button class="btn small" type="button" data-pair="' + p.id + '">分析这对</button>';
+      html2 += '<div id="pairResult-' + p.id + '"></div>';
+    });
+    $('c2pairs').innerHTML = html2;
+    var html3 = '<h3>C3 · Simplicio 原句 + 改写 + 汉译</h3>' +
+      '<div class="text-cols">' +
+      textCard({ lang: 'en', label: '原句', text: C3.orig }) +
+      textCard({ lang: 'en', label: '改写（周煦良改写）', text: C3.rewrite }) +
+      textCard({ lang: 'zh', label: '汉译（周煦良译）', text: C3.zh }) + '</div>' +
+      '<button class="btn small" type="button" data-pair="C3">分析这组</button>' +
+      '<div id="pairResult-C3"></div>';
+    $('c3block').innerHTML = html3;
+
+    document.querySelectorAll('[data-pair]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-pair');
+        var pair = null;
+        C1_PAIRS.forEach(function (p) { if (p.id === id) pair = p; });
+        C2_PAIRS.forEach(function (p) { if (p.id === id) pair = p; });
+        var out = '';
+        if (id === 'C3') {
+          var ro = A.analyzeText(C3.orig, 'en');
+          var rr = A.analyzeText(C3.rewrite, 'en');
+          var rz = A.analyzeText(C3.zh, 'zh');
+          out += '<h3>原句</h3>' + metricCards4(ro);
+          out += '<h3>改写</h3>' + metricCards4(rr);
+          out += '<h3>汉译</h3>' + metricCards4(rz);
+          out += '<h3>平均句长对照（英文按词计、中文按字计，只作量级对照）</h3>' + bars([
+            { label: '原句', value: ro.avgLen, cls: '' },
+            { label: '改写', value: rr.avgLen, cls: 'green' },
+            { label: '汉译', value: rz.avgLen, cls: 'orange' }
+          ]);
+          out += '<p class="subtitle">原句 1 句 104 词，改写后拆成 5 句、平均句长 23 词——先解剖、再改写，句子短了，但从属标记密度（' + fmt(ro.subordDensity) + ' → ' + fmt(rr.subordDensity) + '）变化不大：改写拆的是句子，不是连接手段。</p>';
+        } else if (pair) {
+          var re = A.analyzeText(pair.en, 'en');
+          var rz2 = A.analyzeText(pair.zh, 'zh');
+          out += '<h3>英语原句</h3>' + metricCards4(re);
+          out += '<h3>汉译</h3>' + metricCards4(rz2);
+          out += '<h3>平均句长对照（英文按词计、中文按字计，只作量级对照）</h3>' + bars([
+            { label: '英语原句', value: re.avgLen, cls: '' },
+            { label: '汉译', value: rz2.avgLen, cls: 'orange' }
+          ]);
+        }
+        $('pairResult-' + id).innerHTML = out;
+      });
+    });
+  }
+
+  $('btnAnalyzeA').addEventListener('click', function () {
+    var out = '';
+    A_ITEMS.forEach(function (item) {
+      out += '<h3>' + esc(item.title) + '</h3>';
+      var rows = [];
+      item.texts.forEach(function (t) {
+        var r = A.analyzeText(t.text, t.lang);
+        out += '<h3>' + esc(t.label) + '</h3>' + metricCards4(r);
+        rows.push({ label: t.label, value: r.avgLen, cls: t.lang === 'en' ? '' : 'orange' });
+      });
+      if (rows.length > 1) {
+        out += '<h3>平均句长对照（英文按词计、中文按字计，只作量级对照）</h3>' + bars(rows);
+      }
+    });
+    $('resultA').innerHTML = out;
+  });
+
+  $('btnAnalyzeB').addEventListener('click', function () {
+    var out = '';
+    var rows = [];
+    var enAvg = [], enSub = [], enLong = [], enPost = [];
+    B_ITEMS.forEach(function (item) {
+      var r = A.analyzeText(item.zh, 'zh');
+      out += '<h3>' + esc(item.title) + '</h3>' + metricCards4(r);
+      rows.push({ label: item.id, value: r.avgLen, cls: 'orange' });
+      var re = A.analyzeText(item.en, 'en');
+      enAvg.push(re.avgLen); enSub.push(re.subordDensity); enLong.push(re.longRatio); enPost.push(re.postExpRate);
+    });
+    out += '<h3>六段中文平均句长对照</h3>' + bars(rows);
+    out += '<p class="subtitle">B 组英译对照（化简为繁后）：平均句长 ' + fmt(mean(enAvg)) + ' 词、从属标记密度 ' +
+      fmt(mean(enSub)) + '、长句占比 ' + fmt(mean(enLong)) + '%、后置扩展率 ' + fmt(mean(enPost)) +
+      '。同一段意思，译成英语后句子变长、从属标记变多——这就是“化简为繁”。</p>';
+    $('resultB').innerHTML = out;
+  });
+
+  function renderSummaryMeans() {
+    var aLens = A_ITEMS.map(function (it) { return A.analyzeText(it.texts[0].text, 'en').avgLen; });
+    var aSubs = A_ITEMS.map(function (it) { return A.analyzeText(it.texts[0].text, 'en').subordDensity; });
+    var bLens = B_ITEMS.map(function (it) { return A.analyzeText(it.zh, 'zh').avgLen; });
+    var bSubs = B_ITEMS.map(function (it) { return A.analyzeText(it.zh, 'zh').subordDensity; });
+    var cZhLens = [];
+    var cZhSubs = [];
+    C1_PAIRS.forEach(function (p) { cZhLens.push(A.analyzeText(p.zh, 'zh').avgLen); cZhSubs.push(A.analyzeText(p.zh, 'zh').subordDensity); });
+    C2_PAIRS.forEach(function (p) { cZhLens.push(A.analyzeText(p.zh, 'zh').avgLen); cZhSubs.push(A.analyzeText(p.zh, 'zh').subordDensity); });
+    cZhLens.push(A.analyzeText(C3.zh, 'zh').avgLen);
+    cZhSubs.push(A.analyzeText(C3.zh, 'zh').subordDensity);
+    $('summaryMeans').innerHTML =
+      '<h3>平均句长对照（英文按词计、中文按字计，只作量级对照）</h3>' + bars([
+        { label: 'A 组英文原句', value: mean(aLens), cls: '' },
+        { label: 'B 组中文原文', value: mean(bLens), cls: 'orange' },
+        { label: 'C 组汉译', value: mean(cZhLens), cls: 'green' }
+      ]) +
+      '<p class="subtitle">A 组平均句长 ' + fmt(mean(aLens)) + ' 词，B 组 ' + fmt(mean(bLens)) + ' 字，C 组汉译 ' + fmt(mean(cZhLens)) +
+      ' 字；从属标记密度：A 组 ' + fmt(mean(aSubs)) + '，B 组 ' + fmt(mean(bSubs)) + '，C 组汉译 ' + fmt(mean(cZhSubs)) + '。</p>';
+  }
+
+  renderGroupA();
+  renderGroupB();
+  renderCPairs();
+  renderSummaryMeans();
+
+  /* parody 句实测（实时计算） */
+  (function parodyNote() {
+    var r = A.analyzeText(A_ITEMS[0].texts[0].text, 'en');
+    $('parodyNote').innerHTML = '实测：parody 句共 <strong>' + r.units + '</strong> 词、1 个句子，平均句长 <strong>' +
+      fmt(r.avgLen) + '</strong> 词（书上说“约 200 词”）；对照 Flesch 表，221 词属于 Very difficult（30 words or more）一档——' +
+      '但注意这是刻意仿造的 parody，不能代表常规句式。常规参照值：专业作者 20 词、受过教育者 25 词。';
+  })();
+
+  /* ================= 后端连接状态 ================= */
+  async function checkBackend() {
+    try {
+      await api('/api/submissions?chapter=ch4');
+      $('backendStatus').innerHTML = '<span class="dot ok"></span>已连接云端数据库';
+      return true;
+    } catch (e) {
+      $('backendStatus').innerHTML = '<span class="dot warn"></span>未连接后端：仅本地分析可用（部署后自动连接）';
+      return false;
+    }
+  }
+
+  function sampleMeans() {
+    var aLens = A_ITEMS.map(function (it) { return A.analyzeText(it.texts[0].text, 'en').avgLen; });
+    var aSubs = A_ITEMS.map(function (it) { return A.analyzeText(it.texts[0].text, 'en').subordDensity; });
+    var bLens = B_ITEMS.map(function (it) { return A.analyzeText(it.zh, 'zh').avgLen; });
+    var bSubs = B_ITEMS.map(function (it) { return A.analyzeText(it.zh, 'zh').subordDensity; });
+    return { enLen: mean(aLens), enSub: mean(aSubs), zhLen: mean(bLens), zhSub: mean(bSubs) };
+  }
+
+  /* ================= 3. 学生动手 ================= */
+  var myLastResult = null;
+  var myLastLang = 'en';
+  $('btnAnalyzeMine').addEventListener('click', function () {
+    var text = $('myText').value;
+    var lang = document.querySelector('input[name="myLang"]:checked').value;
+    if (!text.trim()) {
+      $('myResult').innerHTML = '<p class="msg err">请先粘贴一段文本。</p>';
+      return;
+    }
+    var r = A.analyzeText(text, lang);
+    myLastResult = r;
+    myLastLang = lang;
+    var means = sampleMeans();
+    var refLen = lang === 'en' ? means.enLen : means.zhLen;
+    var refSub = lang === 'en' ? means.enSub : means.zhSub;
+    var refLabel = lang === 'en' ? 'A 组英文样本均值' : 'B 组中文样本均值';
+    $('myResult').innerHTML = metricCards(r) +
+      '<h3>与样本均值对比</h3>' +
+      '<p class="subtitle">平均句长对照</p>' + bars([
+        { label: '你的文本', value: r.avgLen, cls: 'green' },
+        { label: refLabel, value: refLen, cls: '' }
+      ]) +
+      '<p class="subtitle">从属标记密度对照</p>' + bars([
+        { label: '你的文本', value: r.subordDensity, cls: 'green' },
+        { label: refLabel, value: refSub, cls: '' }
+      ]) +
+      '<p class="subtitle">你的文本平均句长 ' + fmt(r.avgLen) + '，' + refLabel + ' ' + fmt(refLen) +
+      '；从属标记密度 ' + fmt(r.subordDensity) + '，' + refLabel + ' ' + fmt(refSub) + '。</p>';
+    $('btnSubmitMine').disabled = false;
+    $('submitMsg').textContent = '';
+    $('submitMsg').className = 'msg';
+  });
+
+  function metricCards(r) { return metricCards4(r); }
+
+  $('btnSubmitMine').addEventListener('click', async function () {
+    if (!myLastResult) return;
+    var btn = $('btnSubmitMine');
+    btn.disabled = true;
+    try {
+      await api('/api/submissions', {
+        method: 'POST',
+        body: {
+          chapter: 'ch4',
+          nickname: $('myNickname').value.trim() || '匿名',
+          text_lang: myLastLang,
+          word_count: myLastResult.units,
+          connective_count: myLastResult.connectives,
+          density: myLastResult.density,
+          avg_sentence_length: myLastResult.avgLen,
+          subord_density: myLastResult.subordDensity,
+          long_ratio: myLastResult.longRatio
+        }
+      });
+      $('submitMsg').textContent = '提交成功！已进入班级数据墙。';
+      $('submitMsg').className = 'msg ok';
+      loadWall();
+    } catch (e) {
+      $('submitMsg').textContent = '提交失败：' + e.message + '（请检查网络或后端连接）';
+      $('submitMsg').className = 'msg err';
+      btn.disabled = false;
+    }
+  });
+
+  async function loadWall() {
+    try {
+      var data = await api('/api/submissions?chapter=ch4');
+      var avg = (data.avgDensity === null || data.avgDensity === undefined) ? '' : '，班级平均连接词密度 <strong>' + fmt(Number(data.avgDensity)) + '</strong>';
+      $('wallSummary').innerHTML = '<p>已提交 <strong>' + data.count + '</strong> 人' + avg + '。</p>';
+      var rows = data.items || [];
+      if (!rows.length) {
+        $('wallBody').innerHTML = '<tr><td colspan="7">还没有提交，快来做第一个吧。</td></tr>';
+        return;
+      }
+      $('wallBody').innerHTML = rows.map(function (r) {
+        var t = r.created_at ? new Date(r.created_at).toLocaleString('zh-CN', { hour12: false }) : '';
+        var avgL = (r.avg_sentence_length === null || r.avg_sentence_length === undefined) ? '—' : fmt(Number(r.avg_sentence_length));
+        var sub = (r.subord_density === null || r.subord_density === undefined) ? '—' : fmt(Number(r.subord_density));
+        var lng = (r.long_ratio === null || r.long_ratio === undefined) ? '—' : fmt(Number(r.long_ratio)) + '%';
+        return '<tr><td>' + esc(r.nickname || '匿名') + '</td><td>' + (r.text_lang === 'zh' ? '中文' : '英文') + '</td><td>' + r.word_count + '</td><td>' + avgL + '</td><td>' + sub + '</td><td>' + lng + '</td><td>' + esc(t) + '</td></tr>';
+      }).join('');
+    } catch (e) {
+      $('wallSummary').innerHTML = '<p class="msg err">班级数据墙未连接：' + esc(e.message) + '</p>';
+      $('wallBody').innerHTML = '<tr><td colspan="7">未连接后端</td></tr>';
+    }
+  }
+  $('btnRefreshWall').addEventListener('click', loadWall);
+
+  $('btnClear').addEventListener('click', async function () {
+    var pin = $('clearPin').value.trim();
+    if (!pin) {
+      $('clearMsg').textContent = '请先输入教师 PIN。';
+      $('clearMsg').className = 'msg err';
+      return;
+    }
+    if (!window.confirm('确定要清空全部班级数据吗？提交、投票、小测记录都会被删除，不可恢复。')) return;
+    try {
+      await api('/api/clear', { method: 'POST', body: { pin: pin, chapter: 'ch4' } });
+      $('clearMsg').textContent = '已清空。';
+      $('clearMsg').className = 'msg ok';
+      $('clearPin').value = '';
+      loadWall();
+      loadVotes();
+      loadStats();
+    } catch (e) {
+      $('clearMsg').textContent = '清空失败：' + e.message;
+      $('clearMsg').className = 'msg err';
+    }
+  });
+
+  /* ================= 儿歌延伸链 ================= */
+  var chainState = {};
+  function renderChains() {
+    var html = '';
+    CHAINS.forEach(function (c) {
+      chainState[c.id] = 0;
+      html += '<div class="text-card" style="margin:12px 0;"><span class="tag' + (c.id === 'en' ? '' : ' zh') + '">' + esc(c.title) + '</span>';
+      html += '<div class="chain-steps" id="steps-' + c.id + '"><p>' + esc(c.base) + '</p></div>';
+      html += '<p class="subtitle">已延伸 <strong id="count-' + c.id + '">0</strong> 步（共 ' + c.steps.length + ' 步）</p>';
+      html += '<button class="btn small" type="button" data-chain="' + c.id + '">延伸一步</button>';
+      html += '<button class="btn small secondary" type="button" data-chain-reset="' + c.id + '">重新开始</button>';
+      if (c.extra) html += '<p class="subtitle">' + esc(c.extra) + '</p>';
+      html += '<p class="explain" id="chainDone-' + c.id + '">' + esc(c.done) + '</p>';
+      html += '</div>';
+    });
+    $('chains').innerHTML = html;
+    document.querySelectorAll('#chains [data-chain]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-chain');
+        var c = null;
+        CHAINS.forEach(function (x) { if (x.id === id) c = x; });
+        if (!c) return;
+        var n = chainState[id];
+        if (n >= c.steps.length) return;
+        var stepsEl = $('steps-' + id);
+        var p = document.createElement('p');
+        p.textContent = c.steps[n];
+        stepsEl.appendChild(p);
+        chainState[id] = n + 1;
+        $('count-' + id).textContent = String(n + 1);
+        if (n + 1 >= c.steps.length) {
+          $('chainDone-' + id).classList.add('show');
+          btn.disabled = true;
+          checkChainsDone();
+        }
+      });
+    });
+    document.querySelectorAll('#chains [data-chain-reset]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-chain-reset');
+        var c = null;
+        CHAINS.forEach(function (x) { if (x.id === id) c = x; });
+        if (!c) return;
+        chainState[id] = 0;
+        var stepsEl = $('steps-' + id);
+        stepsEl.innerHTML = '<p>' + esc(c.base) + '</p>';
+        $('count-' + id).textContent = '0';
+        $('chainDone-' + id).classList.remove('show');
+        document.querySelector('#chains [data-chain="' + id + '"]').disabled = false;
+        $('chainConclusion').style.display = 'none';
+      });
+    });
+  }
+  function checkChainsDone() {
+    var all = CHAINS.every(function (c) { return chainState[c.id] >= c.steps.length; });
+    if (all) $('chainConclusion').style.display = 'block';
+  }
+  renderChains();
+
+  /* ================= 4. 验证环节 ================= */
+  var CHOICE_LABEL = { confirm: '证实', refute: '证伪', unsure: '存疑' };
+  function renderHyps() {
+    var html = '';
+    HYPS.forEach(function (h) {
+      html += '<h3>' + esc(h.title) + '</h3>';
+      html += '<p><strong>数据怎么说：</strong>' + esc(h.dataSay) + '</p>';
+      html += '<div class="vote-btns">' +
+        '<button class="btn small" type="button" data-h="' + h.id + '" data-choice="confirm">证实</button>' +
+        '<button class="btn small secondary" type="button" data-h="' + h.id + '" data-choice="refute">证伪</button>' +
+        '<button class="btn small secondary" type="button" data-h="' + h.id + '" data-choice="unsure">存疑</button>' +
+        '</div>';
+      html += '<div id="voteBars-' + h.id + '"><p class="subtitle">正在加载票数…</p></div>';
+    });
+    $('hypotheses').innerHTML = html;
+    document.querySelectorAll('#hypotheses [data-h]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var h = btn.getAttribute('data-h');
+        var choice = btn.getAttribute('data-choice');
+        try {
+          await api('/api/votes', { method: 'POST', body: { hypothesis: h, choice: choice, chapter: 'ch4' } });
+          loadVotes();
+        } catch (e) {
+          window.alert('投票失败：' + e.message);
+        }
+      });
+    });
+  }
+
+  async function loadVotes() {
+    try {
+      var data = await api('/api/votes?chapter=ch4');
+      HYPS.forEach(function (h) {
+        var t = (data.tally && data.tally[h.id]) || { confirm: 0, refute: 0, unsure: 0, total: 0 };
+        var el = $('voteBars-' + h.id);
+        if (!el) return;
+        if (!t.total) {
+          el.innerHTML = '<p class="subtitle">还没有投票。</p>';
+          return;
+        }
+        el.innerHTML = ['confirm', 'refute', 'unsure'].map(function (c) {
+          var pct = Math.round((t[c] / t.total) * 100);
+          var cls = c === 'confirm' ? 'green' : (c === 'refute' ? 'orange' : '');
+          return '<div class="bar-row"><span>' + CHOICE_LABEL[c] + ' ' + t[c] + ' 票</span>' +
+            '<div class="bar"><i class="' + cls + '" style="width:' + Math.max(1, pct) + '%"></i></div>' +
+            '<span class="bar-val">' + pct + '%</span></div>';
+        }).join('') + '<p class="subtitle">共 ' + t.total + ' 票</p>';
+      });
+    } catch (e) {
+      HYPS.forEach(function (h) {
+        var el = $('voteBars-' + h.id);
+        if (el) el.innerHTML = '<p class="msg err">票数未连接：' + esc(e.message) + '</p>';
+      });
+    }
+  }
+
+  /* ================= 6. 课堂小测（含查看正确答案） ================= */
+  var quizAnswers = [null, null, null];
+  var quizSeen = [false, false, false];
+  var quizShown = [false, false, false];
+  var quizSubmitted = false;
+  var quizAllShown = false;
+
+  function quizExplainVisible(qi) {
+    return quizShown[qi] || quizAnswers[qi] !== null;
+  }
+  function refreshQuizExplain(qi) {
+    var ex = $('explain' + qi);
+    if (!ex) return;
+    if (quizExplainVisible(qi)) ex.classList.add('show');
+    else ex.classList.remove('show');
+    var btn = document.querySelector('#quizBox [data-reveal="' + qi + '"]');
+    if (btn) btn.textContent = quizShown[qi] ? '收起答案' : '查看正确答案';
+    var correctBtn = document.querySelector('#quizBox [data-q="' + qi + '"][data-o="' + QUIZ[qi].answer + '"]');
+    if (correctBtn) {
+      if (quizShown[qi] && quizAnswers[qi] === null) correctBtn.classList.add('correct');
+      else if (quizAnswers[qi] === null) correctBtn.classList.remove('correct');
+    }
+  }
+  function renderQuiz() {
+    var html = '';
+    QUIZ.forEach(function (q, qi) {
+      html += '<h3>' + esc(q.q) + '</h3>';
+      q.opts.forEach(function (opt, oi) {
+        html += '<button class="quiz-opt" type="button" data-q="' + qi + '" data-o="' + oi + '">' + esc(opt) + '</button>';
+      });
+      html += '<button class="btn small secondary" type="button" data-reveal="' + qi + '">查看正确答案</button>';
+      html += '<p class="explain" id="explain' + qi + '">' + esc(q.explain) + '</p>';
+    });
+    $('quizBox').innerHTML = html;
+    document.querySelectorAll('#quizBox .quiz-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var qi = Number(btn.getAttribute('data-q'));
+        var oi = Number(btn.getAttribute('data-o'));
+        if (quizAnswers[qi] !== null) return;
+        quizAnswers[qi] = oi;
+        var q = QUIZ[qi];
+        document.querySelectorAll('#quizBox [data-q="' + qi + '"]').forEach(function (b) {
+          b.disabled = true;
+          var boi = Number(b.getAttribute('data-o'));
+          if (boi === q.answer) b.classList.add('correct');
+          else if (boi === oi) b.classList.add('wrong');
+        });
+        if (quizSeen[qi]) {
+          $('explain' + qi).textContent = q.explain + '（本题查看过答案，计为未答对。）';
+        }
+        refreshQuizExplain(qi);
+        if (quizAnswers.every(function (a) { return a !== null; })) showQuizResult();
+      });
+    });
+    document.querySelectorAll('#quizBox [data-reveal]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var qi = Number(btn.getAttribute('data-reveal'));
+        quizSeen[qi] = true;
+        quizShown[qi] = !quizShown[qi];
+        refreshQuizExplain(qi);
+      });
+    });
+  }
+
+  $('btnToggleAllAnswers').addEventListener('click', function () {
+    quizAllShown = !quizAllShown;
+    QUIZ.forEach(function (q, qi) {
+      if (quizAllShown) quizSeen[qi] = true;
+      quizShown[qi] = quizAllShown;
+      refreshQuizExplain(qi);
+    });
+    $('btnToggleAllAnswers').textContent = quizAllShown ? '收起全部答案' : '查看全部答案';
+  });
+
+  function showQuizResult() {
+    var score = 0;
+    quizAnswers.forEach(function (a, i) { if (a === QUIZ[i].answer && !quizSeen[i]) score++; });
+    var cheer = score === 3 ? '满分！繁复与简短已经掌握了。'
+      : score === 2 ? '不错！再想想错的那一题。'
+      : score === 1 ? '刚起步，别灰心，回看数据实验室再试一次。'
+      : '别灰心，先回看理论导读和数据实验室，下节课再测一次。';
+    $('quizResult').innerHTML =
+      '<div class="note green"><strong>得分 ' + score + ' / 3</strong> —— ' + cheer + '</div>' +
+      '<label for="quizNickname">昵称 / 学号后两位（提交得分用）</label>' +
+      '<input type="text" id="quizNickname" maxlength="20" placeholder="例如：小林 / 07">' +
+      '<div><button class="btn" id="btnSubmitQuiz" type="button">提交得分</button></div>' +
+      '<p class="msg" id="quizSubmitMsg"></p>';
+    $('btnRetakeQuiz').style.display = '';
+    $('btnSubmitQuiz').addEventListener('click', async function () {
+      if (quizSubmitted) return;
+      quizSubmitted = true;
+      try {
+        await api('/api/quiz', {
+          method: 'POST',
+          body: { chapter: 'ch4', nickname: $('quizNickname').value.trim() || '匿名', score: score, answers: quizAnswers.slice() }
+        });
+        $('quizSubmitMsg').textContent = '得分已提交。';
+        $('quizSubmitMsg').className = 'msg ok';
+      } catch (e) {
+        $('quizSubmitMsg').textContent = '提交失败：' + e.message;
+        $('quizSubmitMsg').className = 'msg err';
+        quizSubmitted = false;
+      }
+    });
+  }
+
+  $('btnRetakeQuiz').addEventListener('click', function () {
+    quizAnswers = [null, null, null];
+    quizSeen = [false, false, false];
+    quizShown = [false, false, false];
+    quizSubmitted = false;
+    quizAllShown = false;
+    $('btnToggleAllAnswers').textContent = '查看全部答案';
+    $('btnRetakeQuiz').style.display = 'none';
+    $('quizResult').innerHTML = '';
+    renderQuiz();
+  });
+
+  /* ================= 8. 教师统计 ================= */
+  function statCard(label, value) {
+    return '<div class="metric"><div class="num">' + esc(String(value)) + '</div><div class="lbl">' + esc(label) + '</div></div>';
+  }
+  function countBars(rows) {
+    var max = 0;
+    rows.forEach(function (r) { if (r.value > max) max = r.value; });
+    if (max === 0) max = 1;
+    return rows.map(function (r) {
+      var w = Math.max(1, Math.round((r.value / max) * 100));
+      return '<div class="bar-row"><span>' + esc(r.label) + '</span>' +
+        '<div class="bar"><i style="width:' + w + '%"></i></div>' +
+        '<span class="bar-val">' + r.value + '</span></div>';
+    }).join('');
+  }
+  async function loadStats() {
+    var box = $('statsBox');
+    box.innerHTML = '<p>正在加载统计…</p>';
+    try {
+      var d = await api('/api/stats?chapter=ch4');
+      var html = '<div class="stat-cards">' +
+        statCard('提交人数', d.submissionCount) +
+        statCard('班级平均密度', fmt(d.avgDensity)) +
+        statCard('小测人数', d.quizCount) +
+        statCard('小测平均分', fmt(d.avgScore) + ' / 3') +
+        '</div>';
+      html += '<h3>提交语言分布（份数）</h3>' + countBars([
+        { label: '英文文本', value: d.byLang.en },
+        { label: '中文文本', value: d.byLang.zh }
+      ]);
+      html += '<h3>投票分布</h3>';
+      ['H1', 'H2', 'H3'].forEach(function (h) {
+        var t = d.voteDist[h] || { confirm: 0, refute: 0, unsure: 0, total: 0 };
+        html += '<p><strong>' + h + '</strong>（共 ' + t.total + ' 票）：证实 ' + t.confirm + ' · 证伪 ' + t.refute + ' · 存疑 ' + t.unsure + '</p>';
+      });
+      html += '<h3>小测得分分布（人数）</h3>' + countBars([
+        { label: '0 分', value: d.scoreDist[0] || 0 },
+        { label: '1 分', value: d.scoreDist[1] || 0 },
+        { label: '2 分', value: d.scoreDist[2] || 0 },
+        { label: '3 分', value: d.scoreDist[3] || 0 }
+      ]);
+      box.innerHTML = html;
+    } catch (e) {
+      box.innerHTML = '<p class="msg err">统计未连接：' + esc(e.message) + '</p>';
+    }
+  }
+  $('btnRefreshStats').addEventListener('click', loadStats);
+
+  /* ================= 初始化 ================= */
+  renderHyps();
+  renderQuiz();
+  initGate();
+})();
+</script>
+</body>
+</html>
