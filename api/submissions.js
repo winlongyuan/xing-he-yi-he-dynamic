@@ -10,9 +10,10 @@ module.exports = async function handler(req, res) {
   if (!util.methodGuard(req, res, ['GET', 'POST'])) return;
   try {
     if (req.method === 'GET') {
+      var chapter = (req.query && req.query.chapter) === 'ch4' ? 'ch4' : 'ch3';
       var rows = await supa.rest('submissions', {
         key: supa.anonKey(),
-        query: '?select=*&order=created_at.desc&limit=200'
+        query: '?select=*&chapter=eq.' + chapter + '&order=created_at.desc&limit=200'
       });
       var count = rows.length;
       var avgDensity = count
@@ -23,6 +24,7 @@ module.exports = async function handler(req, res) {
 
     var b = util.readJson(req);
     var row = {
+      chapter: b.chapter === 'ch4' ? 'ch4' : 'ch3',
       nickname: String(b.nickname || '匿名').slice(0, 20),
       text_lang: b.text_lang === 'zh' ? 'zh' : 'en',
       word_count: Math.max(0, Math.floor(Number(b.word_count) || 0)),

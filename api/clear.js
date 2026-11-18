@@ -1,6 +1,7 @@
 'use strict';
 
-// POST /api/clear — 教师清空班级数据（submissions / votes / quiz_results 全清）
+// POST /api/clear — 教师清空班级数据（只清请求体 chapter 指定的章节，缺省 ch3；
+// submissions / votes / quiz_results 三张表各清该章节的行）
 // 需在请求体中提供 { pin }，与环境变量 TEACHER_PIN 做等长恒时比较；
 // 使用 SUPABASE_SERVICE_ROLE_KEY 调用（绕过 RLS），该 key 只存在于服务端。
 var crypto = require('node:crypto');
@@ -24,10 +25,11 @@ module.exports = async function handler(req, res) {
       return util.send(res, 403, { ok: false, error: 'PIN 不正确' });
     }
     var key = supa.serviceKey();
+    var chapter = b.chapter === 'ch4' ? 'ch4' : 'ch3';
     var tables = ['submissions', 'votes', 'quiz_results'];
     for (var i = 0; i < tables.length; i++) {
-      // PostgREST 的 DELETE 必须带过滤条件；id > 0 即全部行
-      await supa.rest(tables[i], { method: 'DELETE', key: key, query: '?id=gt.0' });
+      // PostgREST 的 DELETE 必须带过滤条件；只清该章节（chapter=eq.<值>），不碰另一章
+      await supa.rest(tables[i], { method: 'DELETE', key: key, query: '?chapter=eq.' + chapter + '&id=gt.0' });
     }
     return util.send(res, 200, { ok: true, cleared: true });
   } catch (err) {

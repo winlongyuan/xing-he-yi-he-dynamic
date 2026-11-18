@@ -18,6 +18,7 @@ module.exports = async function handler(req, res) {
       method: 'POST',
       key: supa.anonKey(),
       body: {
+        chapter: b.chapter === 'ch4' ? 'ch4' : 'ch3',
         nickname: String(b.nickname || '匿名').slice(0, 20),
         score: score,
         answers: answers

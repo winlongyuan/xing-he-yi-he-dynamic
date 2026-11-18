@@ -21,9 +21,10 @@ module.exports = async function handler(req, res) {
   if (!util.methodGuard(req, res, ['GET', 'POST'])) return;
   try {
     if (req.method === 'GET') {
+      var chapter = (req.query && req.query.chapter) === 'ch4' ? 'ch4' : 'ch3';
       var rows = await supa.rest('votes', {
         key: supa.anonKey(),
-        query: '?select=hypothesis,choice&limit=1000'
+        query: '?select=hypothesis,choice&chapter=eq.' + chapter + '&limit=1000'
       });
       var tally = emptyTally();
       rows.forEach(function (r) {
@@ -42,7 +43,7 @@ module.exports = async function handler(req, res) {
     var inserted = await supa.rest('votes', {
       method: 'POST',
       key: supa.anonKey(),
-      body: { hypothesis: b.hypothesis, choice: b.choice }
+      body: { chapter: b.chapter === 'ch4' ? 'ch4' : 'ch3', hypothesis: b.hypothesis, choice: b.choice }
     });
     var item = Array.isArray(inserted) ? inserted[0] : inserted;
     return util.send(res, 201, { ok: true, item: item });

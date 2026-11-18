@@ -9,10 +9,11 @@ module.exports = async function handler(req, res) {
   if (!util.methodGuard(req, res, ['GET'])) return;
   try {
     var key = supa.anonKey();
+    var chapter = (req.query && req.query.chapter) === 'ch4' ? 'ch4' : 'ch3';
     var results = await Promise.all([
-      supa.rest('submissions', { key: key, query: '?select=density,text_lang&limit=1000' }),
-      supa.rest('votes', { key: key, query: '?select=hypothesis,choice&limit=1000' }),
-      supa.rest('quiz_results', { key: key, query: '?select=score&limit=1000' })
+      supa.rest('submissions', { key: key, query: '?select=density,text_lang&chapter=eq.' + chapter + '&limit=1000' }),
+      supa.rest('votes', { key: key, query: '?select=hypothesis,choice&chapter=eq.' + chapter + '&limit=1000' }),
+      supa.rest('quiz_results', { key: key, query: '?select=score&chapter=eq.' + chapter + '&limit=1000' })
     ]);
     var subs = results[0];
     var votes = results[1];
