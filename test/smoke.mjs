@@ -66,7 +66,7 @@ console.log('  汉语形合化均值 ' + mean(xingD).toFixed(2) + '（预期 10.
 check('英文均值 ≈ 14.76', approx(mean(enD), 14.76));
 check('汉语意合均值 ≈ 5.5', approx(mean(yiD), 5.5));
 check('汉语形合化均值 ≈ 10.76', approx(mean(xingD), 10.76));
-check('英文约为汉语意合的 2.7 倍（小测 Q3“约 3 倍”成立）', approx(mean(enD) / mean(yiD), 2.68, 0.05));
+check('英文约为汉语意合的 2.7 倍（小测 Q3“约 2.7 倍”成立）', approx(mean(enD) / mean(yiD), 2.68, 0.05));
 
 /* ---------- 3. SQL 文件结构 ---------- */
 console.log('\n[3] supabase/schema.sql');
@@ -241,6 +241,34 @@ const gate = require(path.join(root, 'api/gate.js'));
   await submissions(mockReq({ method: 'DELETE' }), res2);
   check('DELETE /api/submissions → 405', res2.statusCode === 405);
 }
+
+/* ---------- 6. 第三章补充内容（2026-11-18 全补，12 项 + 3 处小问题） ---------- */
+console.log('\n[6] 第三章补充内容（index.html 静态检查）');
+const indexHtml = readFileSync(path.join(root, 'public/index.html'), 'utf8');
+function has(s) { return indexHtml.includes(s); }
+check('介词体系：含 286 个介词与 9 个高频介词', has('286') && has('9 个介词') && has('with、to、from、at、in、of、by、for、on'));
+check('数量化表述：连接性词语约 100 vs 约 50', has('约 100 个') && has('约 50 个'));
+check('数量化表述：三分之二因果句不用关联词', has('三分之二'));
+check('汉语意合四种手段：语序、紧缩句、四字格', has('紧缩句') && has('四字格') && has('先"因"后"果"'));
+check('语序规律：先因后果常态、先果后因变态', has('先"因"后"果"几乎不用"因为"') && has('先"果"后"因"大多用"因为"'));
+check('文体：严复三版本对照与信达雅', has('严复') && has('信达雅') && has('王佐良'));
+check('文体：英语变态意合 5 例', has('Man proposes, God disposes') && has('敌进我退'));
+check('文化根源：王力连环与无缝天衣', has('王力') && has('无缝天衣'));
+check('文化根源：低语境作者责任型 vs 高语境读者责任型', has('作者责任型') && has('读者责任型'));
+check('方法论：树形句法与流水句法', has('树形句法') && has('流水句法'));
+check('方法论：Huxley 长句拆四句', has('科学家的思维活动和普通人的思维活动之间存在着差别'));
+check('词表注明：教学子集', has('教学子集'));
+check('H2 注明：实验室自设验证项', has('实验室自设验证项'));
+check('Q3 题干已统一为约 2.7 倍', has('约为汉语意合文本的 2.7 倍'));
+check('第三条预测已标为有待验证', has('有待验证的预测'));
+check('课后作业已扩展：介词例 4、紧缩句组、语序组', has('课后作业（二）') && has('课后作业（三）') && has('课后作业（四）'));
+check('讨论题已增至五道', has('先说原因时常常不用"因为"') && has('Man proposes, God disposes'));
+check('误排未被当作正文引用：引文里无"毕竞有联络"、无"通过名日"', !has('毕竞有联络') && !has('通过名日'));
+check('误排已纠正：毕竟、名曰', has('毕竟有联络的痕迹') && has('名曰'));
+check('严复乙版未补全：以逗号戛然而止的说明在', has('以逗号戛然而止'));
+check('第四章导航行未动', has('fanfu-yujian.html') && has('第四章 繁复与简短'));
+check('现有数字未动：14.76、5.5、10.8、2.7 倍（10.76 为实时计算值，见第 [2] 节均值检查）', has('14.76') && has('5.5') && has('10.8') && has('2.7 倍'));
+check('小测答案未动：Q1 B、Q2 C、Q3 B', (indexHtml.match(/answer: 1,/g) || []).length === 2 && (indexHtml.match(/answer: 2,/g) || []).length === 1);
 
 /* ---------- 汇总 ---------- */
 console.log('\n========================================');
